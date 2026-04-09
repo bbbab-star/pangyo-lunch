@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>판교 밥밥밥 🍱</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --card: #ffffff;
+    --text: #1a1a18;
+    --text-sub: #6b6b65;
+    --text-muted: #a0a09a;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.14);
+    --accent: #1a1a18;
+    --chip-active-bg: #1a1a18;
+    --chip-active-text: #f7f6f2;
+    --tag-한식-bg: #e8f5ee; --tag-한식-color: #1a5c35; --tag-한식-border: #a8d8ba;
+    --tag-일식-bg: #e8f0fb; --tag-일식-color: #1a3d7c; --tag-일식-border: #93b8e8;
+    --tag-중식-bg: #fef3e2; --tag-중식-color: #7a4500; --tag-중식-border: #f5c97a;
+    --tag-양식-bg: #f0edfd; --tag-양식-color: #3d2fa0; --tag-양식-border: #c4b8f0;
+    --tag-분식-bg: #fdeee8; --tag-분식-color: #8c3515; --tag-분식-border: #f5b09a;
+    --tag-아시안-bg: #fce8f4; --tag-아시안-color: #7a1f55; --tag-아시안-border: #f0a8d0;
+    --tag-멕시칸-bg: #eef6e0; --tag-멕시칸-color: #2d5e10; --tag-멕시칸-border: #a8d870;
+    --tag-패스트푸드-bg: #f0efea; --tag-패스트푸드-color: #3d3d38; --tag-패스트푸드-border: #c8c8c0;
+    --tag-샌드위치-bg: #f0efea; --tag-샌드위치-color: #3d3d38; --tag-샌드위치-border: #c8c8c0;
+    --tag-샐러드-bg: #eef6e0; --tag-샐러드-color: #2d5e10; --tag-샐러드-border: #a8d870;
+    --tag-퓨전-bg: #fce8e8; --tag-퓨전-color: #8c1515; --tag-퓨전-border: #f0a0a0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    background: var(--bg);
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* HEADER */
+  .header {
+    padding: 20px 16px 14px;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .header-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+
+  .header-title span {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-sub);
+    letter-spacing: 0;
+    margin-top: 3px;
+  }
+
+  .search-wrap {
+    display: flex;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    padding: 0 12px;
+    height: 40px;
+    gap: 8px;
+  }
+
+  .search-icon { color: var(--text-muted); font-size: 14px; flex-shrink: 0; }
+
+  .search-wrap input {
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+    flex: 1;
+    width: 100%;
+  }
+
+  .search-wrap input::placeholder { color: var(--text-muted); }
+
+  .search-clear {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px;
+    display: none;
+    line-height: 1;
+  }
+
+  /* FILTERS */
+  .filter-bar {
+    display: flex;
+    gap: 6px;
+    padding: 10px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+
+  .chip {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: inherit;
+    border: 1px solid var(--border-strong);
+    cursor: pointer;
+    background: var(--card);
+    color: var(--text-sub);
+    white-space: nowrap;
+    transition: all 0.12s;
+    font-weight: 400;
+  }
+  .chip:active { transform: scale(0.96); }
+  .chip.active {
+    background: var(--chip-active-bg);
+    color: var(--chip-active-text);
+    border-color: var(--chip-active-bg);
+    font-weight: 500;
+  }
+
+  /* TOOLBAR */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px 6px;
+  }
+
+  .count-label { font-size: 12px; color: var(--text-muted); }
+
+  .toolbar-right { display: flex; align-items: center; gap: 10px; }
+
+  .ticket-toggle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .ticket-toggle input { display: none; }
+
+  .toggle-track {
+    width: 30px;
+    height: 17px;
+    background: var(--border-strong);
+    border-radius: 17px;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .toggle-track::after {
+    content: '';
+    position: absolute;
+    width: 13px;
+    height: 13px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .ticket-toggle input:checked + .toggle-track { background: var(--accent); }
+  .ticket-toggle input:checked + .toggle-track::after { transform: translateX(13px); }
+
+  .toggle-label { font-size: 11px; color: var(--text-sub); }
+
+  .sort-btns { display: flex; border: 1px solid var(--border-strong); border-radius: 8px; overflow: hidden; }
+  .sort-btn {
+    padding: 4px 10px;
+    font-size: 11px;
+    font-family: inherit;
+    border: none;
+    background: transparent;
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .sort-btn + .sort-btn { border-left: 1px solid var(--border-strong); }
+  .sort-btn.active { background: var(--accent); color: white; font-weight: 500; }
+
+  /* CARDS */
+  .card-list { padding: 8px 12px 80px; display: flex; flex-direction: column; gap: 6px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 13px 14px;
+    cursor: pointer;
+    transition: border-color 0.12s, transform 0.1s;
+    position: relative;
+  }
+  .card:active { transform: scale(0.99); border-color: var(--border-strong); }
+
+  .card-row1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 5px;
+  }
+
+  .card-name { font-size: 15px; font-weight: 500; letter-spacing: -0.3px; }
+
+  .card-star { font-size: 12px; color: #c48a00; letter-spacing: 0; flex-shrink: 0; margin-left: 8px; }
+
+  .card-row2 {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+
+  .kind-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-weight: 500;
+    border: 1px solid;
+    flex-shrink: 0;
+  }
+
+  .loc-tag {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .badge-no-ticket {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 8px;
+    background: #fde8e8;
+    color: #a32020;
+    border: 1px solid #f5b0b0;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .badge-ticket-ok {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 8px;
+    background: #e8f5ee;
+    color: #1a5c35;
+    border: 1px solid #a8d8ba;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .card-food { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
+  .card-note { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+
+  /* EMPTY */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-icon { font-size: 32px; margin-bottom: 12px; }
+  .empty-text { font-size: 14px; }
+
+  /* DETAIL */
+  .detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 200;
+    transform: translateX(100%);
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+    max-width: 430px;
+    left: 50%;
+    margin-left: -215px;
+    overflow-y: auto;
+  }
+
+  @media (max-width: 430px) {
+    .detail-overlay { left: 0; margin-left: 0; }
+  }
+
+  .detail-overlay.open { transform: translateX(0); }
+
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+  }
+
+  .back-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    background: var(--card);
+    cursor: pointer;
+    font-size: 16px;
+    flex-shrink: 0;
+    color: var(--text);
+  }
+
+  .detail-name { font-size: 17px; font-weight: 700; letter-spacing: -0.4px; }
+
+  .detail-body { padding: 20px 16px; }
+
+  .detail-star-big { font-size: 18px; margin-bottom: 20px; letter-spacing: 1px; color: #c48a00; }
+  .detail-star-none { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+
+  .detail-row {
+    display: flex;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-label { font-size: 12px; color: var(--text-muted); min-width: 48px; padding-top: 1px; }
+  .detail-val { font-size: 13px; color: var(--text); flex: 1; line-height: 1.5; }
+
+  .detail-note {
+    margin-top: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 13px;
+    color: var(--text-sub);
+    line-height: 1.7;
+  }
+
+  .detail-note-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* LOADING */
+  .loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    gap: 12px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border-strong);
+    border-top-color: var(--text);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* BOTTOM BAR */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    padding: 10px 16px 20px;
+    background: linear-gradient(to top, var(--bg) 80%, transparent);
+    z-index: 50;
+  }
+
+  .sheet-link {
+    display: block;
+    width: 100%;
+    padding: 11px;
+    background: var(--accent);
+    color: #f7f6f2;
+    border: none;
+    border-radius: 12px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    text-decoration: none;
+    letter-spacing: -0.2px;
+  }
+
+  .sheet-link:active { opacity: 0.85; }
+
+  /* REFRESH BTN */
+  .refresh-btn {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    background: var(--card);
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-sub);
+    flex-shrink: 0;
+  }
+
+  .fade-in { animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div class="header-title">
+        판교 밥밥밥 🍱
+        <span>NHN 근처 점심 맛집 모음</span>
+      </div>
+      <button class="refresh-btn" onclick="loadData()" title="새로고침">↻</button>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="가게명, 음식 검색..." oninput="onSearch(this.value)">
+      <button class="search-clear" id="clearBtn" onclick="clearSearch()">✕</button>
+    </div>
+  </div>
+
+  <!-- FILTER -->
+  <div class="filter-bar" id="filterBar"></div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <span class="count-label" id="countLabel">—</span>
+    <div class="toolbar-right">
+      <label class="ticket-toggle">
+        <input type="checkbox" id="ticketToggle" onchange="render()">
+        <span class="toggle-track"></span>
+        <span class="toggle-label">식권 가능만</span>
+      </label>
+      <div class="sort-btns">
+        <button class="sort-btn active" id="btnName" onclick="setSort('name')">가나다</button>
+        <button class="sort-btn" id="btnStar" onclick="setSort('star')">별점순</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="card-list" id="cardList">
+    <div class="loading"><div class="spinner"></div>맛집 불러오는 중...</div>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="bottom-bar">
+    <a class="sheet-link" href="https://docs.google.com/spreadsheets/d/1tehvmMSkE-SWYbW2Nn4hC3nrVh4nBFWICifGg3KIZvI/edit" target="_blank">
+      구글 시트에서 맛집 추가 / 수정 →
+    </a>
+  </div>
+
+  <!-- DETAIL OVERLAY -->
+  <div class="detail-overlay" id="detailOverlay">
+    <div class="detail-header">
+      <button class="back-btn" onclick="closeDetail()">←</button>
+      <span class="detail-name" id="detailName"></span>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+
+</div>
+
+<script>
+// ── 구글 시트 CSV URL (공개 설정 필요) ──
+const SHEET_ID = '1tehvmMSkE-SWYbW2Nn4hC3nrVh4nBFWICifGg3KIZvI';
+const SHEET_GID = '0';
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${SHEET_GID}`;
+
+// 컬럼 인덱스 (0-based): 가게명,위치,종류,파는음식,별점,기타사항,식권여부
+const COL = { name:0, loc:1, kind:2, food:3, star:4, note:5, ticket:6 };
+
+const KIND_STYLE = {
+  "한식":       { bg:"var(--tag-한식-bg)",       color:"var(--tag-한식-color)",       border:"var(--tag-한식-border)" },
+  "일식":       { bg:"var(--tag-일식-bg)",       color:"var(--tag-일식-color)",       border:"var(--tag-일식-border)" },
+  "중식":       { bg:"var(--tag-중식-bg)",       color:"var(--tag-중식-color)",       border:"var(--tag-중식-border)" },
+  "양식":       { bg:"var(--tag-양식-bg)",       color:"var(--tag-양식-color)",       border:"var(--tag-양식-border)" },
+  "분식":       { bg:"var(--tag-분식-bg)",       color:"var(--tag-분식-color)",       border:"var(--tag-분식-border)" },
+  "아시안":     { bg:"var(--tag-아시안-bg)",     color:"var(--tag-아시안-color)",     border:"var(--tag-아시안-border)" },
+  "멕시칸":     { bg:"var(--tag-멕시칸-bg)",     color:"var(--tag-멕시칸-color)",     border:"var(--tag-멕시칸-border)" },
+  "패스트푸드": { bg:"var(--tag-패스트푸드-bg)", color:"var(--tag-패스트푸드-color)", border:"var(--tag-패스트푸드-border)" },
+  "샌드위치":   { bg:"var(--tag-샌드위치-bg)",   color:"var(--tag-샌드위치-color)",   border:"var(--tag-샌드위치-border)" },
+  "샐러드":     { bg:"var(--tag-샐러드-bg)",     color:"var(--tag-샐러드-color)",     border:"var(--tag-샐러드-border)" },
+  "퓨전":       { bg:"var(--tag-퓨전-bg)",       color:"var(--tag-퓨전-color)",       border:"var(--tag-퓨전-border)" },
+};
+
+let DATA = [];
+let activeKind = '전체';
+let sortMode = 'name';
+
+// ── CSV 파싱 ──
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = splitCSVLine(lines[i]);
+    if (!cols[COL.name] || cols[COL.name].trim() === '') continue;
+    rows.push({
+      name:   (cols[COL.name]   || '').trim(),
+      loc:    (cols[COL.loc]    || '').trim(),
+      kind:   (cols[COL.kind]   || '').trim(),
+      food:   (cols[COL.food]   || '').trim(),
+      star:   (cols[COL.star]   || '').trim(),
+      note:   (cols[COL.note]   || '').trim(),
+      ticket: (cols[COL.ticket] || '').trim(),
+    });
+  }
+  return rows;
+}
+
+function splitCSVLine(line) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; continue; }
+    if (c === ',' && !inQ) { result.push(cur); cur = ''; continue; }
+    cur += c;
+  }
+  result.push(cur);
+  return result;
+}
+
+// ── 데이터 로드 ──
+async function loadData() {
+  document.getElementById('cardList').innerHTML = '<div class="loading"><div class="spinner"></div>맛집 불러오는 중...</div>';
+  try {
+    const res = await fetch(CSV_URL + '&t=' + Date.now());
+    const text = await res.text();
+    DATA = parseCSV(text);
+    buildFilters();
+    render();
+  } catch(e) {
+    document.getElementById('cardList').innerHTML = `
+      <div class="loading">
+        <div style="font-size:28px">⚠️</div>
+        <div>데이터를 불러올 수 없어요<br><span style="font-size:12px">구글 시트 공개 설정을 확인해주세요</span></div>
+      </div>`;
+  }
+}
+
+// ── 필터 칩 생성 ──
+function buildFilters() {
+  const kinds = ['전체', ...new Set(DATA.map(d => d.kind).filter(Boolean))];
+  const bar = document.getElementById('filterBar');
+  bar.innerHTML = kinds.map(k =>
+    `<button class="chip${k === activeKind ? ' active' : ''}" onclick="setKind('${k}')">${k}</button>`
+  ).join('');
+}
+
+function setKind(k) {
+  activeKind = k;
+  buildFilters();
+  render();
+}
+
+function setSort(mode) {
+  sortMode = mode;
+  document.getElementById('btnName').classList.toggle('active', mode === 'name');
+  document.getElementById('btnStar').classList.toggle('active', mode === 'star');
+  render();
+}
+
+function starScore(s) {
+  if (!s || s === '데이터 없음') return -1;
+  return (s.match(/★/g)||[]).length + ((s.match(/☆/g)||[]).length ? 0.5 : 0);
+}
+
+function onSearch(val) {
+  document.getElementById('clearBtn').style.display = val ? 'block' : 'none';
+  render();
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('clearBtn').style.display = 'none';
+  render();
+}
+
+// ── 렌더 ──
+function render() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const ticketOnly = document.getElementById('ticketToggle').checked;
+
+  let items = DATA.filter(d => {
+    if (activeKind !== '전체' && d.kind !== activeKind) return false;
+    if (ticketOnly && d.ticket.includes('식권 안됨')) return false;
+    if (q && !d.name.toLowerCase().includes(q) && !d.food.toLowerCase().includes(q) && !d.note.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  if (sortMode === 'star') {
+    items.sort((a, b) => starScore(b.star) - starScore(a.star) || a.name.localeCompare(b.name, 'ko'));
+  } else {
+    items.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  }
+
+  document.getElementById('countLabel').textContent = `${items.length}곳`;
+
+  const list = document.getElementById('cardList');
+
+  if (items.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-text">검색 결과가 없어요</div></div>`;
+    return;
+  }
+
+  list.innerHTML = items.map((d, i) => {
+    const s = KIND_STYLE[d.kind] || KIND_STYLE['패스트푸드'];
+    const noTicket = d.ticket.includes('식권 안됨');
+    const ticketBadge = noTicket
+      ? `<span class="badge-no-ticket">식권 안됨</span>`
+      : d.ticket === '' ? `<span class="badge-ticket-ok">식권 가능</span>` : `<span style="font-size:10px;color:var(--text-muted)">${d.ticket}</span>`;
+
+    return `<div class="card fade-in" style="animation-delay:${Math.min(i*0.02,0.3)}s" onclick="openDetail(${DATA.indexOf(d)})">
+      <div class="card-row1">
+        <span class="card-name">${d.name}</span>
+        <span class="card-star">${d.star && d.star !== '데이터 없음' ? d.star : ''}</span>
+      </div>
+      <div class="card-row2">
+        <span class="kind-tag" style="background:${s.bg};color:${s.color};border-color:${s.border}">${d.kind}</span>
+        ${d.loc ? `<span class="loc-tag">${d.loc}</span>` : ''}
+        ${ticketBadge}
+      </div>
+      ${d.food ? `<div class="card-food">${d.food}</div>` : ''}
+      ${d.note ? `<div class="card-note">${d.note}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── 상세 ──
+function openDetail(idx) {
+  const d = DATA[idx];
+  const s = KIND_STYLE[d.kind] || KIND_STYLE['패스트푸드'];
+  const noTicket = d.ticket.includes('식권 안됨');
+
+  document.getElementById('detailName').textContent = d.name;
+  document.getElementById('detailBody').innerHTML = `
+    ${d.star && d.star !== '데이터 없음'
+      ? `<div class="detail-star-big">${d.star}</div>`
+      : `<div class="detail-star-none">별점 정보 없음</div>`}
+    <div class="detail-row">
+      <span class="detail-label">종류</span>
+      <span class="detail-val"><span style="display:inline-block;background:${s.bg};color:${s.color};border:1px solid ${s.border};padding:2px 10px;border-radius:8px;font-size:12px;font-weight:500">${d.kind}</span></span>
+    </div>
+    ${d.loc ? `<div class="detail-row"><span class="detail-label">위치</span><span class="detail-val">${d.loc}</span></div>` : ''}
+    ${d.food ? `<div class="detail-row"><span class="detail-label">메뉴</span><span class="detail-val">${d.food}</span></div>` : ''}
+    <div class="detail-row">
+      <span class="detail-label">식권</span>
+      <span class="detail-val">${noTicket
+        ? '<span class="badge-no-ticket">식권 안됨</span>'
+        : d.ticket ? d.ticket : '<span class="badge-ticket-ok">식권 가능</span>'}</span>
+    </div>
+    ${d.note ? `<div class="detail-note"><div class="detail-note-label">메모</div>${d.note}</div>` : ''}
+  `;
+
+  document.getElementById('detailOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// 뒤로가기 제스처
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDetail(); });
+
+loadData();
+</script>
+</body>
+</html>
