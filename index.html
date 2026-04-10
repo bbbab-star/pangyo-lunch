@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>판교 밥밥밥</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lime: #c8f000;
+    --lime-dark: #a8cc00;
+    --black: #111111;
+    --white: #ffffff;
+    --bg: #f2f2f2;
+    --text: #111111;
+    --text-sub: #555555;
+    --text-muted: #999999;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.15);
+    --pad: 24px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  .app { max-width: 430px; margin: 0 auto; min-height: 100vh; background: var(--bg); position: relative; }
+
+  .hero { background: var(--lime); padding: 56px var(--pad) 0; position: relative; min-height: 190px; }
+  .hero-location { display: inline-flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.1); border-radius: 20px; padding: 5px 12px; font-size: 11px; font-weight: 700; color: var(--black); margin-bottom: 14px; }
+  .hero-title { font-size: 38px; font-weight: 900; letter-spacing: -2px; line-height: 1.05; color: var(--black); font-style: italic; padding-bottom: 20px; }
+
+  .menu-btn { position: absolute; top: 16px; right: var(--pad); width: 38px; height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border: 2px solid var(--black); border-radius: 12px; background: var(--white); cursor: pointer; box-shadow: 2px 2px 0 var(--black); z-index: 50; }
+  .menu-btn span { display: block; width: 16px; height: 2px; background: var(--black); border-radius: 2px; }
+  .menu-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--black); }
+
+  .search-section { background: var(--lime); padding: 0 var(--pad); }
+  .search-wrap { display: flex; align-items: center; background: var(--white); border-radius: 16px; padding: 0 6px 0 14px; height: 50px; gap: 8px; border: 2px solid var(--black); box-shadow: 3px 3px 0 var(--black); }
+  .search-wrap input { border: none; background: transparent; font-size: 14px; font-family: inherit; color: var(--text); outline: none; flex: 1; font-weight: 500; }
+  .search-wrap input::placeholder { color: var(--text-muted); font-weight: 400; }
+  .search-btn { width: 38px; height: 38px; background: var(--lime); border-radius: 12px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .search-clear { background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; display: none; padding: 2px 4px; }
+
+  .hero-curve { background: var(--lime); height: 28px; position: relative; }
+  .hero-curve::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 28px; background: var(--bg); border-radius: 28px 28px 0 0; }
+
+  .sticky-bar { position: sticky; top: 0; z-index: 100; background: var(--bg); }
+
+  .filter-bar { display: flex; gap: 7px; padding: 14px var(--pad) 4px; overflow-x: auto; scrollbar-width: none; }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .chip { flex-shrink: 0; padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; font-family: inherit; border: 2px solid var(--black); cursor: pointer; background: var(--white); color: var(--black); white-space: nowrap; transition: all 0.1s; box-shadow: 2px 2px 0 var(--black); }
+  .chip:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--black); }
+  .chip.act { background: var(--black); color: var(--lime); }
+
+  .toolbar { display: flex; align-items: center; justify-content: space-between; padding: 8px var(--pad) 6px; }
+  .count-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  .toolbar-right { display: flex; align-items: center; gap: 8px; }
+  .ticket-toggle { display: flex; align-items: center; gap: 5px; cursor: pointer; user-select: none; }
+  .ticket-toggle input { display: none; }
+  .toggle-track { width: 32px; height: 18px; background: #ddd; border-radius: 18px; position: relative; transition: background 0.2s; border: 1.5px solid rgba(0,0,0,0.15); }
+  .toggle-track::after { content: ''; position: absolute; width: 12px; height: 12px; background: white; border-radius: 50%; top: 1px; left: 1px; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .ticket-toggle input:checked + .toggle-track { background: var(--black); border-color: var(--black); }
+  .ticket-toggle input:checked + .toggle-track::after { transform: translateX(14px); background: var(--lime); }
+  .toggle-label { font-size: 11px; color: var(--text-sub); font-weight: 600; }
+  .sort-btns { display: flex; border: 2px solid var(--black); border-radius: 10px; overflow: hidden; background: var(--white); box-shadow: 2px 2px 0 var(--black); }
+  .sort-btn { padding: 5px 11px; font-size: 11px; font-family: inherit; font-weight: 600; border: none; background: transparent; color: var(--text-sub); cursor: pointer; }
+  .sort-btn + .sort-btn { border-left: 2px solid var(--black); }
+  .sort-btn.active { background: var(--black); color: var(--lime); }
+
+  .card-list { padding: 4px var(--pad) 40px; display: flex; flex-direction: column; gap: 8px; }
+  .card { background: var(--white); border: 2px solid var(--black); border-radius: 16px; padding: 14px 15px 14px 20px; cursor: pointer; position: relative; overflow: hidden; box-shadow: 3px 3px 0 var(--black); transition: transform 0.1s, box-shadow 0.1s; }
+  .card:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--black); }
+  .card-row1 { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .card-name { font-size: 15px; font-weight: 700; letter-spacing: -0.4px; }
+  .card-star { font-size: 12px; color: #d4a000; flex-shrink: 0; margin-left: 8px; font-weight: 700; }
+  .card-row2 { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
+  .kind-tag { font-size: 10px; padding: 3px 9px; border-radius: 8px; font-weight: 700; flex-shrink: 0; color: white; }
+  .loc-tag { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+  .badge-no { font-size: 10px; padding: 3px 8px; border-radius: 8px; background: #fff0f0; color: #cc2200; border: 1.5px solid #ffb8b8; margin-left: auto; flex-shrink: 0; font-weight: 700; }
+  .badge-ok { font-size: 10px; padding: 3px 8px; border-radius: 8px; background: #f0fae4; color: #337700; border: 1.5px solid #b8e88a; margin-left: auto; flex-shrink: 0; font-weight: 700; }
+  .card-food { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
+  .card-note { font-size: 11px; color: var(--text-muted); line-height: 1.5; background: #f8f8f8; border-radius: 8px; padding: 6px 8px; margin-top: 2px; border: 1px solid var(--border); }
+
+  .state-box { text-align: center; padding: 70px 20px; color: var(--text-muted); }
+  .state-icon { font-size: 40px; margin-bottom: 14px; }
+  .state-text { font-size: 14px; line-height: 1.7; }
+  .spinner { width: 28px; height: 28px; border: 3px solid #e0e0e0; border-top-color: var(--lime-dark); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .detail-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 200; transform: translateY(100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); max-width: 430px; left: 50%; margin-left: -215px; overflow-y: auto; }
+  @media (max-width: 430px) { .detail-overlay { left: 0; margin-left: 0; } }
+  .detail-overlay.open { transform: translateY(0); }
+  .detail-drag { width: 40px; height: 4px; background: #ddd; border-radius: 4px; margin: 12px auto 0; }
+  .detail-header { padding: 14px var(--pad) 16px; display: flex; align-items: center; gap: 12px; border-bottom: 2px solid var(--black); }
+  .back-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--black); border-radius: 12px; background: var(--white); cursor: pointer; font-size: 16px; color: var(--text); flex-shrink: 0; box-shadow: 2px 2px 0 var(--black); }
+  .detail-name { font-size: 18px; font-weight: 900; letter-spacing: -0.5px; }
+  .detail-banner { margin: 16px var(--pad) 0; padding: 14px 16px; border-radius: 16px; color: white; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: space-between; border: 2px solid var(--black); box-shadow: 3px 3px 0 var(--black); }
+  .detail-body { padding: 16px var(--pad); }
+  .detail-star-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .detail-star-big { font-size: 22px; color: #d4a000; font-weight: 700; }
+  .detail-star-label { font-size: 12px; color: var(--text-muted); }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .detail-icard { background: var(--white); border: 2px solid var(--black); border-radius: 12px; padding: 12px; box-shadow: 2px 2px 0 var(--black); }
+  .detail-icard.full { grid-column: 1 / -1; }
+  .detail-ilabel { font-size: 10px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 5px; }
+  .detail-ival { font-size: 13px; color: var(--text); font-weight: 600; line-height: 1.4; }
+  .detail-note-box { background: var(--lime); border: 2px solid var(--black); border-radius: 12px; padding: 14px; box-shadow: 2px 2px 0 var(--black); }
+  .detail-note-label { font-size: 10px; color: var(--black); font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; }
+  .detail-note-text { font-size: 13px; color: var(--black); line-height: 1.7; font-weight: 500; }
+
+  .drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .drawer-backdrop.open { opacity: 1; pointer-events: all; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 260px; background: var(--white); z-index: 301; transform: translateX(100%); transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); border-left: 2px solid var(--black); display: flex; flex-direction: column; }
+  .drawer.open { transform: translateX(0); }
+  .drawer-header { background: var(--lime); padding: 52px var(--pad) 20px; border-bottom: 2px solid var(--black); position: relative; }
+  .drawer-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--black); border-radius: 8px; background: var(--white); cursor: pointer; font-size: 14px; font-weight: 700; box-shadow: 2px 2px 0 var(--black); }
+  .drawer-body { padding: 8px 0; flex: 1; }
+  .drawer-item { display: flex; align-items: center; gap: 14px; padding: 18px var(--pad); cursor: pointer; transition: background 0.1s; border-bottom: 1px solid var(--border); }
+  .drawer-item:last-child { border-bottom: none; }
+  .drawer-item:active { background: #f5f5f5; }
+  .drawer-item-icon { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
+  .drawer-item-label { font-size: 15px; font-weight: 700; }
+
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 400; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-backdrop.open { display: flex; }
+  .pw-modal { background: var(--white); border: 2px solid var(--black); border-radius: 24px; padding: 28px 24px; width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 16px; box-shadow: 5px 5px 0 var(--black); }
+  .pw-title { font-size: 17px; font-weight: 900; text-align: center; }
+  .pw-sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: -8px; }
+  .pw-dots { display: flex; justify-content: center; gap: 14px; margin: 4px 0; }
+  .pw-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.2); background: transparent; transition: all 0.15s; }
+  .pw-dot.filled { background: var(--black); border-color: var(--black); }
+  .pw-dot.error { background: #e53935; border-color: #e53935; animation: shake 0.35s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
+  .pw-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .pw-key { height: 54px; border-radius: 12px; border: 2px solid var(--black); background: var(--white); font-size: 20px; font-weight: 700; font-family: inherit; cursor: pointer; color: var(--text); box-shadow: 2px 2px 0 var(--black); transition: all 0.1s; }
+  .pw-key:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--black); background: var(--lime); }
+  .pw-key.del { font-size: 15px; font-weight: 600; color: var(--text-sub); }
+  .pw-key.cancel { font-size: 12px; font-weight: 600; color: var(--text-muted); background: #f5f5f5; }
+
+  .mail-modal { background: var(--white); border: 2px solid var(--black); border-radius: 24px; padding: 28px 24px; width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 14px; box-shadow: 5px 5px 0 var(--black); }
+  .mail-title { font-size: 17px; font-weight: 900; text-align: center; }
+  .mail-desc { font-size: 12px; color: var(--text-muted); text-align: center; line-height: 1.6; }
+  .mail-form { background: #f8f8f8; border: 2px solid var(--black); border-radius: 12px; padding: 14px; font-size: 12px; line-height: 2; color: var(--text-sub); }
+  .mail-form strong { color: var(--black); font-weight: 700; display: block; margin-bottom: 2px; }
+  .mail-open-btn { display: block; width: 100%; padding: 13px; background: var(--black); color: var(--lime); border: 2px solid var(--black); border-radius: 12px; font-size: 14px; font-family: inherit; font-weight: 700; text-align: center; text-decoration: none; }
+  .mail-cancel-btn { width: 100%; padding: 10px; background: transparent; border: 2px solid rgba(0,0,0,0.15); border-radius: 12px; font-size: 13px; font-family: inherit; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+
+  .fade-in { animation: fadeIn 0.18s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hero">
+    <div class="hero-location">📍 판교</div>
+    <div class="hero-title">Hi Bab 🍱</div>
+    <button class="menu-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
+  </div>
+  <div class="search-section">
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="가게명, 음식 검색..." oninput="onSearch(this.value)">
+      <button class="search-clear" id="clearBtn" onclick="clearSearch()">✕</button>
+      <button class="search-btn">🔍</button>
+    </div>
+  </div>
+  <div class="hero-curve"></div>
+
+  <div class="sticky-bar">
+    <div class="filter-bar" id="filterBar"></div>
+    <div class="toolbar">
+      <span class="count-label" id="countLabel"></span>
+      <div class="toolbar-right">
+        <label class="ticket-toggle">
+          <input type="checkbox" id="ticketToggle" onchange="render()">
+          <span class="toggle-track"></span>
+          <span class="toggle-label">식권 가능만</span>
+        </label>
+        <div class="sort-btns">
+          <button class="sort-btn active" id="btnName" onclick="setSort('name')">가나다</button>
+          <button class="sort-btn" id="btnStar" onclick="setSort('star')">별점순</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-list" id="cardList">
+    <div class="state-box"><div class="spinner"></div><div class="state-text">맛집 불러오는 중...</div></div>
+  </div>
+
+  <div class="detail-overlay" id="detailOverlay">
+    <div class="detail-drag"></div>
+    <div class="detail-header">
+      <button class="back-btn" onclick="closeDetail()">←</button>
+      <span class="detail-name" id="detailName"></span>
+    </div>
+    <div id="detailContent"></div>
+  </div>
+
+  <div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-item" onclick="requestSheetAccess()">
+        <div class="drawer-item-icon">🚪</div>
+        <div class="drawer-item-label">비밀의 방</div>
+      </div>
+      <div class="drawer-item" onclick="closeDrawer(); openMailModal();">
+        <div class="drawer-item-icon">📮</div>
+        <div class="drawer-item-label">식당 추가 제보</div>
+      </div>
+      <div class="drawer-item" onclick="closeDrawer(); loadData();">
+        <div class="drawer-item-icon">🔄</div>
+        <div class="drawer-item-label">새로고침</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="pwBackdrop">
+    <div class="pw-modal">
+      <div class="pw-title">🔒 비밀의 방</div>
+      <div class="pw-sub">4자리 비밀번호를 입력하세요</div>
+      <div class="pw-dots">
+        <div class="pw-dot" id="d0"></div><div class="pw-dot" id="d1"></div>
+        <div class="pw-dot" id="d2"></div><div class="pw-dot" id="d3"></div>
+      </div>
+      <div class="pw-keypad">
+        <button class="pw-key" onclick="pwInput('1')">1</button>
+        <button class="pw-key" onclick="pwInput('2')">2</button>
+        <button class="pw-key" onclick="pwInput('3')">3</button>
+        <button class="pw-key" onclick="pwInput('4')">4</button>
+        <button class="pw-key" onclick="pwInput('5')">5</button>
+        <button class="pw-key" onclick="pwInput('6')">6</button>
+        <button class="pw-key" onclick="pwInput('7')">7</button>
+        <button class="pw-key" onclick="pwInput('8')">8</button>
+        <button class="pw-key" onclick="pwInput('9')">9</button>
+        <button class="pw-key cancel" onclick="closePw()">취소</button>
+        <button class="pw-key" onclick="pwInput('0')">0</button>
+        <button class="pw-key del" onclick="pwDelete()">⌫</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="mailBackdrop">
+    <div class="mail-modal">
+      <div class="mail-title">📮 식당 추가 제보</div>
+      <div class="mail-desc">새로운 맛집을 알고 계신가요?<br>메일로 제보해주세요!</div>
+      <div class="mail-form">
+        <strong>제보 양식</strong>
+        가게명:<br>위치:<br>종류:<br>대표 메뉴:<br>별점 (★기준):<br>식권 여부:
+      </div>
+      <a class="mail-open-btn" href="mailto:bbcake@naver.com?subject=판교 밥밥밥 - 식당 제보&body=가게명: %0A위치: %0A종류: %0A대표 메뉴: %0A별점: %0A식권 여부: %0A기타사항: " onclick="closeMailModal()">✉️ 메일 앱 열기</a>
+      <button class="mail-cancel-btn" onclick="closeMailModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbxbYT9lp3SKnu7VFJeQV-eeElyL3VG5IwwRFgoZeVshpww8JHAH-AI6GwDdlTU49yQe/exec';
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1tehvmMSkE-SWYbW2Nn4hC3nrVh4nBFWICifGg3KIZvI/edit';
+const PW = '5603';
+
+const KC = {"한식":"#e85c00","일식":"#3a7bd5","중식":"#e08000","양식":"#7b2fa0","분식":"#c4006e","아시안":"#2e8b4a","멕시칸":"#2d7a30","패스트푸드":"#445566","샌드위치":"#6b4226","샐러드":"#5a8c1a","퓨전":"#cc2200"};
+const KE = {"한식":"🍲","일식":"🍣","중식":"🥟","양식":"🍝","분식":"🍜","아시안":"🍜","멕시칸":"🌮","패스트푸드":"🍔","샌드위치":"🥪","샐러드":"🥗","퓨전":"🍽️"};
+
+let DATA = [], activeKind = '전체', sortMode = 'name';
+
+function openDrawer(){document.getElementById('drawer').classList.add('open');document.getElementById('drawerBackdrop').classList.add('open');}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawerBackdrop').classList.remove('open');}
+function openMailModal(){document.getElementById('mailBackdrop').classList.add('open');}
+function closeMailModal(){document.getElementById('mailBackdrop').classList.remove('open');}
+
+let pwVal = '';
+function requestSheetAccess(){closeDrawer();pwVal='';updateDots();document.getElementById('pwBackdrop').classList.add('open');}
+function closePw(){pwVal='';updateDots();document.getElementById('pwBackdrop').classList.remove('open');}
+function pwInput(n){
+  if(pwVal.length>=4)return;
+  pwVal+=n;updateDots();
+  if(pwVal.length===4){
+    setTimeout(()=>{
+      if(pwVal===PW){closePw();window.open(SHEET_URL,'_blank');}
+      else{
+        document.querySelectorAll('.pw-dot').forEach(d=>{d.classList.remove('filled');d.classList.add('error');});
+        setTimeout(()=>{document.querySelectorAll('.pw-dot').forEach(d=>d.classList.remove('error'));pwVal='';updateDots();},600);
+      }
+    },100);
+  }
+}
+function pwDelete(){if(pwVal.length>0){pwVal=pwVal.slice(0,-1);updateDots();}}
+function updateDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pwVal.length);}
+
+async function loadData() {
+  document.getElementById('cardList').innerHTML = '<div class="state-box"><div class="spinner"></div><div class="state-text">맛집 불러오는 중...</div></div>';
+  try {
+    const res = await fetch(API_URL);
+    const raw = await res.json();
+
+    // 첫 번째 항목의 키 이름을 콘솔에 출력 (디버그용)
+    if (raw.length > 0) {
+      console.log('API 키 목록:', Object.keys(raw[0]));
+      console.log('첫 번째 항목:', raw[0]);
+    }
+
+    DATA = raw
+      .filter(r => r['가게명'] && r['가게명'].toString().trim() !== '')
+      .map(r => ({
+        name:   (r['가게명']   || '').toString().trim(),
+        loc:    (r['위치']     || '').toString().trim(),
+        kind:   (r['종류']     || '').toString().trim(),
+        food:   (r['파는음식'] || '').toString().trim(),
+        star:   (r['별점']     || '').toString().trim(),
+        note:   (r['기타사항'] || '').toString().trim(),
+        ticket: (r['식권여부'] || '').toString().trim(),
+      }));
+
+    console.log('로드된 데이터 수:', DATA.length);
+    console.log('종류 목록:', [...new Set(DATA.map(d => d.kind))]);
+
+    buildFilters();
+    render();
+  } catch(e) {
+    console.error('API 오류:', e);
+    document.getElementById('cardList').innerHTML = '<div class="state-box"><div class="state-icon">⚠️</div><div class="state-text">데이터를 불러올 수 없어요.<br>잠시 후 다시 시도해주세요.</div></div>';
+  }
+}
+
+function buildFilters() {
+  const kinds = ['전체', ...new Set(DATA.map(d => d.kind).filter(k => k && k.trim() !== ''))];
+  console.log('필터 탭 목록:', kinds);
+  document.getElementById('filterBar').innerHTML = kinds.map(k =>
+    '<button class="chip' + (k === activeKind ? ' act' : '') + '" onclick="setKind(\'' + k + '\')">' + k + '</button>'
+  ).join('');
+}
+
+function setKind(k){activeKind=k;buildFilters();render();}
+function setSort(m){sortMode=m;document.getElementById('btnName').classList.toggle('active',m==='name');document.getElementById('btnStar').classList.toggle('active',m==='star');render();}
+function starScore(s){if(!s||s==='데이터 없음')return -1;return(s.match(/★/g)||[]).length+((s.match(/☆/g)||[]).length?0.5:0);}
+function onSearch(v){document.getElementById('clearBtn').style.display=v?'block':'none';render();}
+function clearSearch(){document.getElementById('searchInput').value='';document.getElementById('clearBtn').style.display='none';render();}
+
+function render(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  const to=document.getElementById('ticketToggle').checked;
+  let items=DATA.filter(d=>{
+    if(activeKind!=='전체'&&d.kind!==activeKind)return false;
+    if(to&&d.ticket.includes('식권 안됨'))return false;
+    if(q&&!d.name.toLowerCase().includes(q)&&!d.food.toLowerCase().includes(q)&&!d.note.toLowerCase().includes(q))return false;
+    return true;
+  });
+  if(sortMode==='star')items.sort((a,b)=>starScore(b.star)-starScore(a.star)||a.name.localeCompare(b.name,'ko'));
+  else items.sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+  document.getElementById('countLabel').textContent=items.length+'곳 표시 중';
+  const list=document.getElementById('cardList');
+  if(!items.length){list.innerHTML='<div class="state-box"><div class="state-icon">🍽️</div><div class="state-text">검색 결과가 없어요</div></div>';return;}
+  list.innerHTML=items.map((d,i)=>{
+    const c=KC[d.kind]||'#555';
+    const nt=d.ticket.includes('식권 안됨');
+    const tb=nt?'<span class="badge-no">식권 안됨</span>':d.ticket===''?'<span class="badge-ok">식권 가능</span>':'<span style="font-size:10px;color:var(--text-muted);font-weight:500">'+d.ticket+'</span>';
+    return '<div class="card fade-in" style="animation-delay:'+Math.min(i*0.025,0.4)+'s" onclick="openDetail('+DATA.indexOf(d)+')">'
+      +'<div style="position:absolute;left:0;top:0;bottom:0;width:5px;background:'+c+';border-radius:14px 0 0 14px"></div>'
+      +'<div class="card-row1"><span class="card-name">'+d.name+'</span><span class="card-star">'+(d.star&&d.star!=='데이터 없음'?d.star:'')+'</span></div>'
+      +'<div class="card-row2"><span class="kind-tag" style="background:'+c+'">'+d.kind+'</span>'+(d.loc?'<span class="loc-tag">📍 '+d.loc+'</span>':'')+tb+'</div>'
+      +(d.food?'<div class="card-food">'+d.food+'</div>':'')
+      +(d.note?'<div class="card-note">💬 '+d.note+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+
+function openDetail(idx){
+  const d=DATA[idx];const c=KC[d.kind]||'#555';const nt=d.ticket.includes('식권 안됨');
+  document.getElementById('detailName').textContent=d.name;
+  document.getElementById('detailContent').innerHTML=
+    '<div class="detail-banner" style="background:'+c+'"><span>'+(KE[d.kind]||'🍽️')+' '+d.kind+(d.loc?' · '+d.loc:'')+'</span><span style="font-size:22px">'+(KE[d.kind]||'🍽️')+'</span></div>'
+    +'<div class="detail-body">'
+    +(d.star&&d.star!=='데이터 없음'?'<div class="detail-star-row"><span class="detail-star-big">'+d.star+'</span><span class="detail-star-label">별점</span></div>':'<div class="detail-star-row"><span class="detail-star-label" style="font-size:13px">별점 정보 없음</span></div>')
+    +'<div class="detail-grid">'
+    +(d.food?'<div class="detail-icard full"><div class="detail-ilabel">메뉴</div><div class="detail-ival">'+d.food+'</div></div>':'')
+    +(d.loc?'<div class="detail-icard"><div class="detail-ilabel">위치</div><div class="detail-ival">'+d.loc+'</div></div>':'')
+    +'<div class="detail-icard"><div class="detail-ilabel">식권</div><div class="detail-ival">'+(nt?'<span class="badge-no">식권 안됨</span>':d.ticket?d.ticket:'<span class="badge-ok">식권 가능</span>')+'</div></div>'
+    +'</div>'
+    +(d.note?'<div class="detail-note-box"><div class="detail-note-label">💬 메모</div><div class="detail-note-text">'+d.note+'</div></div>':'')
+    +'</div>';
+  document.getElementById('detailOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDetail();closePw();closeDrawer();closeMailModal();}});
+loadData();
+</script>
+</body>
+</html>
