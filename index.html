@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>판교 밥밥밥</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --grad1: #e8d5f5;
+    --grad2: #f5d5e8;
+    --grad3: #d5e8f5;
+    --white: #ffffff;
+    --text: #1a1040;
+    --text-sub: #6b5f8a;
+    --text-muted: #a89fc0;
+    --card-bg: rgba(255,255,255,0.85);
+    --accent: #6c5ce7;
+    --accent2: #fd79a8;
+    --border: rgba(108,92,231,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: linear-gradient(145deg, #f0e6ff 0%, #ffe6f3 50%, #e6f0ff 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .app { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; }
+
+  /* ── HEADER ── */
+  .header {
+    padding: 20px 20px 16px;
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(240,230,255,0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .header-title { font-size: 30px; font-weight: 900; letter-spacing: -1px; color: var(--text); font-style: italic; }
+
+  /* 햄버거 버튼 */
+  .menu-btn {
+    width: 40px; height: 40px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    border: none; border-radius: 14px;
+    background: var(--white);
+    cursor: pointer; flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(108,92,231,0.15);
+  }
+  .menu-btn span { display: block; width: 16px; height: 1.8px; background: var(--accent); border-radius: 2px; }
+
+  /* 검색창 */
+  .search-wrap {
+    display: flex; align-items: center;
+    background: var(--white);
+    border-radius: 16px;
+    padding: 0 16px; height: 48px; gap: 10px;
+    box-shadow: 0 4px 20px rgba(108,92,231,0.12);
+  }
+  .search-wrap input { border: none; background: transparent; font-size: 14px; font-family: inherit; color: var(--text); outline: none; flex: 1; }
+  .search-wrap input::placeholder { color: var(--text-muted); }
+  .search-icon { color: var(--text-muted); font-size: 16px; flex-shrink: 0; }
+  .search-clear { background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; display: none; padding: 2px; }
+
+  /* ── FILTER ── */
+  .filter-bar {
+    display: flex; gap: 8px;
+    padding: 12px 20px 4px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0; padding: 8px 18px; border-radius: 24px;
+    font-size: 12px; font-weight: 600; font-family: inherit;
+    border: none; cursor: pointer;
+    background: var(--white);
+    color: var(--text-sub);
+    white-space: nowrap; transition: all 0.18s;
+    box-shadow: 0 2px 10px rgba(108,92,231,0.1);
+  }
+  .chip:active { transform: scale(0.95); }
+  .chip.active { background: var(--accent); color: white; box-shadow: 0 4px 14px rgba(108,92,231,0.35); }
+
+  /* ── TOOLBAR ── */
+  .toolbar { display: flex; align-items: center; justify-content: space-between; padding: 8px 20px 4px; }
+  .count-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  .toolbar-right { display: flex; align-items: center; gap: 8px; }
+  .ticket-toggle { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+  .ticket-toggle input { display: none; }
+  .toggle-track { width: 34px; height: 19px; background: rgba(108,92,231,0.2); border-radius: 19px; position: relative; transition: background 0.2s; }
+  .toggle-track::after { content: ''; position: absolute; width: 15px; height: 15px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+  .ticket-toggle input:checked + .toggle-track { background: var(--accent); }
+  .ticket-toggle input:checked + .toggle-track::after { transform: translateX(15px); }
+  .toggle-label { font-size: 11px; color: var(--text-sub); font-weight: 600; }
+  .sort-btns { display: flex; background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(108,92,231,0.1); }
+  .sort-btn { padding: 5px 11px; font-size: 11px; font-family: inherit; font-weight: 600; border: none; background: transparent; color: var(--text-muted); cursor: pointer; }
+  .sort-btn.active { background: var(--accent); color: white; }
+
+  /* ── CARD GRID ── */
+  .card-list { padding: 8px 20px 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 14px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 20px rgba(108,92,231,0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.6);
+    position: relative;
+    overflow: hidden;
+  }
+  .card:active { transform: scale(0.97); box-shadow: 0 2px 10px rgba(108,92,231,0.12); }
+
+  /* 카드 상단 컬러 원형 배경 */
+  .card-emoji-wrap {
+    width: 100%; height: 80px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin-bottom: 10px;
+  }
+
+  .card-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; letter-spacing: -0.3px; }
+  .card-food { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.4; }
+  .card-bottom { display: flex; align-items: center; justify-content: space-between; }
+  .card-star { font-size: 11px; color: #f59e0b; font-weight: 700; }
+  .card-star.empty { color: var(--text-muted); font-size: 10px; }
+
+  .badge-no { font-size: 9px; padding: 2px 7px; border-radius: 8px; background: rgba(255,100,100,0.12); color: #e53935; font-weight: 700; }
+  .badge-ok { font-size: 9px; padding: 2px 7px; border-radius: 8px; background: rgba(76,175,80,0.12); color: #2e7d32; font-weight: 700; }
+
+  .kind-pill {
+    font-size: 9px; padding: 3px 8px; border-radius: 10px;
+    font-weight: 700; color: white; margin-bottom: 6px;
+    display: inline-block;
+  }
+
+  /* 빈 칸 채우기용 (홀수일 때) */
+  .card-placeholder { background: transparent; box-shadow: none; border: none; }
+
+  /* ── STATE ── */
+  .state-box { text-align: center; padding: 70px 20px; color: var(--text-muted); grid-column: 1/-1; }
+  .state-icon { font-size: 40px; margin-bottom: 14px; }
+  .state-text { font-size: 14px; line-height: 1.7; }
+
+  /* ── DETAIL OVERLAY ── */
+  .detail-overlay {
+    position: fixed; inset: 0;
+    background: linear-gradient(145deg, #f0e6ff 0%, #ffe6f3 50%, #e6f0ff 100%);
+    z-index: 200; transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    max-width: 430px; left: 50%; margin-left: -215px;
+    overflow-y: auto;
+  }
+  @media (max-width: 430px) { .detail-overlay { left: 0; margin-left: 0; } }
+  .detail-overlay.open { transform: translateY(0); }
+
+  .detail-drag { width: 40px; height: 4px; background: rgba(108,92,231,0.2); border-radius: 4px; margin: 14px auto 0; }
+  .detail-header { padding: 14px 20px 0; display: flex; align-items: center; gap: 12px; }
+  .back-btn {
+    width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+    border: none; border-radius: 14px; background: white;
+    cursor: pointer; font-size: 16px; color: var(--accent);
+    box-shadow: 0 2px 10px rgba(108,92,231,0.15); flex-shrink: 0;
+  }
+  .detail-name { font-size: 18px; font-weight: 900; letter-spacing: -0.5px; }
+
+  .detail-emoji-banner {
+    margin: 20px 20px 0;
+    height: 160px; border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 72px;
+    box-shadow: 0 8px 30px rgba(108,92,231,0.12);
+  }
+
+  .detail-body { padding: 20px; }
+  .detail-kind-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .detail-star-big { font-size: 20px; color: #f59e0b; font-weight: 700; }
+  .detail-star-none { font-size: 13px; color: var(--text-muted); }
+
+  .detail-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .detail-icard {
+    background: white; border-radius: 16px; padding: 14px;
+    box-shadow: 0 2px 12px rgba(108,92,231,0.08);
+  }
+  .detail-icard.full { grid-column: 1/-1; }
+  .detail-ilabel { font-size: 10px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 5px; }
+  .detail-ival { font-size: 13px; color: var(--text); font-weight: 600; line-height: 1.4; }
+
+  .detail-note-box {
+    background: white; border-radius: 16px; padding: 16px;
+    box-shadow: 0 2px 12px rgba(108,92,231,0.08);
+  }
+  .detail-note-label { font-size: 10px; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; }
+  .detail-note-text { font-size: 13px; color: var(--text-sub); line-height: 1.7; }
+
+  /* ── 드로어 ── */
+  .drawer-backdrop { position: fixed; inset: 0; background: rgba(26,16,64,0.3); z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.25s; backdrop-filter: blur(4px); }
+  .drawer-backdrop.open { opacity: 1; pointer-events: all; }
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; width: 250px;
+    background: linear-gradient(180deg, #f0e6ff 0%, #ffe6f3 100%);
+    z-index: 301; transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    display: flex; flex-direction: column;
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-header { padding: 56px 20px 20px; border-bottom: 1px solid rgba(108,92,231,0.1); position: relative; }
+  .drawer-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+    border: none; border-radius: 10px; background: white; cursor: pointer;
+    font-size: 14px; color: var(--accent);
+    box-shadow: 0 2px 8px rgba(108,92,231,0.15);
+  }
+  .drawer-body { flex: 1; padding: 8px 0; }
+  .drawer-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 20px; cursor: pointer;
+    border-bottom: 1px solid rgba(108,92,231,0.08);
+    transition: background 0.1s;
+  }
+  .drawer-item:last-child { border-bottom: none; }
+  .drawer-item:active { background: rgba(108,92,231,0.06); }
+  .drawer-item-icon { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
+  .drawer-item-label { font-size: 15px; font-weight: 700; color: var(--text); }
+
+  /* ── 모달 ── */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(26,16,64,0.45); z-index: 400; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(6px); }
+  .modal-backdrop.open { display: flex; }
+
+  .pw-modal {
+    background: white; border-radius: 28px; padding: 30px 24px;
+    width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 18px;
+    box-shadow: 0 20px 60px rgba(108,92,231,0.25);
+  }
+  .pw-title { font-size: 18px; font-weight: 900; text-align: center; color: var(--text); }
+  .pw-sub { font-size: 12px; color: var(--text-muted); text-align: center; margin-top: -10px; }
+  .pw-dots { display: flex; justify-content: center; gap: 14px; margin: 4px 0; }
+  .pw-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(108,92,231,0.25); background: transparent; transition: all 0.15s; }
+  .pw-dot.filled { background: var(--accent); border-color: var(--accent); }
+  .pw-dot.error { background: #e53935; border-color: #e53935; animation: shake 0.35s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
+  .pw-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pw-key {
+    height: 56px; border-radius: 16px; border: none;
+    background: #f8f5ff; font-size: 20px; font-weight: 700;
+    font-family: inherit; cursor: pointer; color: var(--text);
+    transition: all 0.12s;
+    box-shadow: 0 2px 8px rgba(108,92,231,0.08);
+  }
+  .pw-key:active { transform: scale(0.94); background: var(--accent); color: white; }
+  .pw-key.del { font-size: 15px; font-weight: 600; color: var(--text-sub); }
+  .pw-key.cancel { font-size: 12px; font-weight: 600; color: var(--text-muted); background: transparent; box-shadow: none; }
+
+  /* 메일 모달 */
+  .mail-modal {
+    background: white; border-radius: 28px; padding: 30px 24px;
+    width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 14px;
+    box-shadow: 0 20px 60px rgba(108,92,231,0.25);
+  }
+  .mail-title { font-size: 18px; font-weight: 900; text-align: center; color: var(--text); }
+  .mail-desc { font-size: 12px; color: var(--text-muted); text-align: center; line-height: 1.6; }
+  .mail-form { background: #f8f5ff; border-radius: 14px; padding: 14px; font-size: 12px; line-height: 2; color: var(--text-sub); }
+  .mail-form strong { color: var(--text); font-weight: 700; display: block; margin-bottom: 2px; font-size: 11px; }
+  .mail-open-btn {
+    display: block; width: 100%; padding: 14px;
+    background: var(--accent); color: white;
+    border: none; border-radius: 16px;
+    font-size: 14px; font-family: inherit; font-weight: 700;
+    text-align: center; text-decoration: none; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(108,92,231,0.35);
+  }
+  .mail-cancel-btn {
+    width: 100%; padding: 10px; background: transparent;
+    border: none; border-radius: 12px;
+    font-size: 13px; font-family: inherit; font-weight: 600;
+    color: var(--text-muted); cursor: pointer;
+  }
+
+  .fade-in { animation: fadeIn 0.2s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="header-title">HI! BAB</div>
+      <button class="menu-btn" onclick="openDrawer()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="가게명, 음식 검색..." oninput="onSearch(this.value)">
+      <button class="search-clear" id="clearBtn" onclick="clearSearch()">✕</button>
+    </div>
+  </div>
+
+  <div class="filter-bar" id="filterBar"></div>
+
+  <div class="toolbar">
+    <span class="count-label" id="countLabel"></span>
+    <div class="toolbar-right">
+      <label class="ticket-toggle">
+        <input type="checkbox" id="ticketToggle" onchange="render()">
+        <span class="toggle-track"></span>
+        <span class="toggle-label">식권 가능만</span>
+      </label>
+      <div class="sort-btns">
+        <button class="sort-btn active" id="btnName" onclick="setSort('name')">가나다</button>
+        <button class="sort-btn" id="btnStar" onclick="setSort('star')">별점순</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-list" id="cardList"></div>
+
+  <!-- 상세 오버레이 -->
+  <div class="detail-overlay" id="detailOverlay">
+    <div class="detail-drag"></div>
+    <div class="detail-header">
+      <button class="back-btn" onclick="closeDetail()">←</button>
+      <span class="detail-name" id="detailName"></span>
+    </div>
+    <div id="detailContent"></div>
+  </div>
+
+  <!-- 드로어 -->
+  <div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-item" onclick="closeDrawer(); location.reload();">
+        <div class="drawer-item-icon">🔄</div>
+        <div class="drawer-item-label">새로고침</div>
+      </div>
+      <div class="drawer-item" onclick="closeDrawer(); openMailModal();">
+        <div class="drawer-item-icon">📮</div>
+        <div class="drawer-item-label">맛집 제보</div>
+      </div>
+      <div class="drawer-item" onclick="closeDrawer(); openPwModal();">
+        <div class="drawer-item-icon">🚪</div>
+        <div class="drawer-item-label">비밀의 방</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 비밀번호 모달 -->
+  <div class="modal-backdrop" id="pwBackdrop">
+    <div class="pw-modal">
+      <div class="pw-title">🔒 비밀의 방</div>
+      <div class="pw-sub">4자리 비밀번호를 입력하세요</div>
+      <div class="pw-dots">
+        <div class="pw-dot" id="d0"></div><div class="pw-dot" id="d1"></div>
+        <div class="pw-dot" id="d2"></div><div class="pw-dot" id="d3"></div>
+      </div>
+      <div class="pw-keypad">
+        <button class="pw-key" onclick="pwInput('1')">1</button>
+        <button class="pw-key" onclick="pwInput('2')">2</button>
+        <button class="pw-key" onclick="pwInput('3')">3</button>
+        <button class="pw-key" onclick="pwInput('4')">4</button>
+        <button class="pw-key" onclick="pwInput('5')">5</button>
+        <button class="pw-key" onclick="pwInput('6')">6</button>
+        <button class="pw-key" onclick="pwInput('7')">7</button>
+        <button class="pw-key" onclick="pwInput('8')">8</button>
+        <button class="pw-key" onclick="pwInput('9')">9</button>
+        <button class="pw-key cancel" onclick="closePwModal()">취소</button>
+        <button class="pw-key" onclick="pwInput('0')">0</button>
+        <button class="pw-key del" onclick="pwDelete()">⌫</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 메일 모달 -->
+  <div class="modal-backdrop" id="mailBackdrop">
+    <div class="mail-modal">
+      <div class="mail-title">📮 맛집 제보</div>
+      <div class="mail-desc">새로운 맛집을 알고 계신가요?<br>메일로 제보해주세요!</div>
+      <div class="mail-form">
+        <strong>제보 양식</strong>
+        가게명:<br>위치:<br>종류:<br>대표 메뉴:<br>별점 (★기준):<br>식권 여부:
+      </div>
+      <a class="mail-open-btn" href="mailto:bbcake@naver.com?subject=판교 밥밥밥 - 맛집 제보&body=가게명: %0A위치: %0A종류: %0A대표 메뉴: %0A별점: %0A식권 여부: %0A기타사항: " onclick="closeMailModal()">✉️ 메일 앱 열기</a>
+      <button class="mail-cancel-btn" onclick="closeMailModal()">닫기</button>
+    </div>
+  </div>
+
+</div>
+<script>
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1tehvmMSkE-SWYbW2Nn4hC3nrVh4nBFWICifGg3KIZvI/edit';
+const PW = '5603';
+
+const KC = {"한식":"#ff6b6b","일식":"#6c8eff","중식":"#ffa94d","양식":"#a55eea","분식":"#f06292","아시안":"#26c6da","멕시칸":"#66bb6a","패스트푸드":"#78909c","샌드위치":"#8d6e63","샐러드":"#9ccc65","퓨전":"#ef5350"};
+const KBG = {"한식":"#fff0f0","일식":"#f0f3ff","중식":"#fff8f0","양식":"#f8f0ff","분식":"#fff0f6","아시안":"#f0fbff","멕시칸":"#f0fff3","패스트푸드":"#f5f7f8","샌드위치":"#faf7f5","샐러드":"#f5fff0","퓨전":"#fff0f0"};
+const KE = {"한식":"🍲","일식":"🍣","중식":"🥟","양식":"🍝","분식":"🍜","아시안":"🥢","멕시칸":"🌮","패스트푸드":"🍔","샌드위치":"🥪","샐러드":"🥗","퓨전":"🍽️"};
+
+const DATA = [
+  {name:"GTS버거",loc:"",kind:"양식",food:"미국식 버거",star:"★★★☆",note:"짭쪼름 육향",ticket:""},
+  {name:"계란집",loc:"삼환 쪽",kind:"한식",food:"오므라이스, 오믈렛",star:"★★★☆",note:"평타이상 오므라이스",ticket:"식권 안됨"},
+  {name:"계림",loc:"",kind:"한식",food:"마늘 닭볶음탕",star:"★★★☆",note:"",ticket:""},
+  {name:"광양불고기",loc:"우림",kind:"한식",food:"불고기 정식",star:"",note:"",ticket:"되는지 애매"},
+  {name:"교소바",loc:"NS별관 지하",kind:"일식",food:"소바/돈까스",star:"★★☆",note:"평냉 스타일 소바, 면은 좋으나 국물이 아쉬움",ticket:""},
+  {name:"구우트",loc:"육교 옆",kind:"양식",food:"파스타",star:"",note:"",ticket:"식권 안됨"},
+  {name:"국밥공장",loc:"",kind:"한식",food:"밀면, 순두부국밥, 라국밥",star:"★★★☆",note:"일반 국밥 아닌 라국밥",ticket:""},
+  {name:"규가츠정",loc:"",kind:"일식",food:"규가츠",star:"★★★☆",note:"고기가 부드럽고 맛있음",ticket:"식권 안됨"},
+  {name:"그린쿡",loc:"우림",kind:"한식",food:"한식부페",star:"★★★",note:"반찬갯수가 많진 않지만 원래 고깃집이라 고기질이 괜찮음",ticket:""},
+  {name:"기름짜는 김밥집",loc:"",kind:"분식",food:"김밥, 떡볶이, 돈까스, 라면",star:"★★★",note:"평범한 분식집 / 살짝 좁음",ticket:""},
+  {name:"김치도가",loc:"삼환",kind:"한식",food:"김치찌개",star:"",note:"",ticket:""},
+  {name:"까사논나",loc:"",kind:"양식",food:"파스타",star:"★★★☆",note:"",ticket:""},
+  {name:"깡우동",loc:"",kind:"한식",food:"우동, 탕수육, 만두",star:"★★★",note:"포장마차 우동 스타일",ticket:""},
+  {name:"단",loc:"유스페이스",kind:"일식",food:"연어덮밥",star:"★★★☆",note:"사케동&에비동도 추천",ticket:""},
+  {name:"돈까스에 미친 김밥",loc:"우림",kind:"분식",food:"김밥, 돈까스세트",star:"",note:"",ticket:""},
+  {name:"락앤웍",loc:"",kind:"중식",food:"짜장면, 탕수육, 어향가지",star:"★★★☆",note:"점심회식 중국집",ticket:""},
+  {name:"려원쭈꾸미",loc:"우림",kind:"한식",food:"쭈꾸미 볶음",star:"★★★",note:"",ticket:""},
+  {name:"르메콩",loc:"유스페이스",kind:"아시안",food:"쌀국수",star:"★★★",note:"쌀국수 맛있음",ticket:""},
+  {name:"마마스포",loc:"H 스퀘어",kind:"아시안",food:"쌀국수",star:"★★★☆",note:"",ticket:""},
+  {name:"마케집",loc:"유스페이스",kind:"한식",food:"회덮밥, 꼬막비빔밥",star:"★★★☆",note:"채소가 많고 맛있음",ticket:"식권 안됨"},
+  {name:"맥도날드",loc:"",kind:"패스트푸드",food:"버거",star:"★★★☆",note:"",ticket:"식권 안됨 (판교테크노밸리점, 동판교점만 됨)"},
+  {name:"먼데이 키친",loc:"우림",kind:"일식",food:"덮밥, 호르몬동, 연어덮밥, 규동",star:"",note:"",ticket:""},
+  {name:"면학",loc:"",kind:"일식",food:"일본식 라멘",star:"★★★",note:"",ticket:""},
+  {name:"문막집",loc:"",kind:"한식",food:"문어, 보쌈, 막국수",star:"★★★★",note:"비싸지만 맛있음 (문어숙회 연함)",ticket:""},
+  {name:"미메이라",loc:"유스페이스 지하",kind:"중식",food:"마라탕 / 우삼겹 볶음 / 아보카도명란",star:"★★★☆",note:"마라탕 근방에서 젤 맛난듯 / 아보카도명란 양 적음",ticket:""},
+  {name:"미소한우소고기국밥",loc:"우림",kind:"한식",food:"한우 소고기국밥, 미역국밥",star:"",note:"",ticket:""},
+  {name:"바스버거",loc:"",kind:"양식",food:"수제햄버거",star:"★★★",note:"",ticket:""},
+  {name:"버거킹",loc:"",kind:"패스트푸드",food:"햄버거",star:"★★★☆",note:"",ticket:""},
+  {name:"베어스 타코",loc:"",kind:"멕시칸",food:"타코",star:"★★★",note:"평범한타코",ticket:""},
+  {name:"본우리반상",loc:"",kind:"한식",food:"솥밥",star:"★★★☆",note:"근처 유일한 솥밥집",ticket:""},
+  {name:"봉피양",loc:"",kind:"한식",food:"",star:"",note:"",ticket:""},
+  {name:"부엉이김밥",loc:"",kind:"분식",food:"꼬마김밥, 라면",star:"★★★☆",note:"",ticket:""},
+  {name:"북청집",loc:"우림",kind:"한식",food:"가성비, 무한리필 제육볶음",star:"★★★☆",note:"",ticket:""},
+  {name:"불고기 온소반",loc:"삼환",kind:"한식",food:"한식",star:"",note:"",ticket:""},
+  {name:"브루클린",loc:"",kind:"양식",food:"피자, 파스타",star:"★★★☆",note:"루꼴라 피자에 루꼴라가 가득",ticket:""},
+  {name:"비즐 돈가츠",loc:"H 스퀘어",kind:"일식",food:"연돈이랑 비슷하다는 돈까스",star:"★★★☆",note:"돈까스가 퍽퍽하지 않고 맛있음",ticket:"식권 안됨"},
+  {name:"빈티지1988",loc:"",kind:"양식",food:"파스타, 피자, 스테이크",star:"★★★",note:"파스타는 울프스덴이 더 맛있는 듯",ticket:""},
+  {name:"산척동 수제비",loc:"",kind:"한식",food:"수제비, 돈까스",star:"★★★☆",note:"다양한 수제비, 수제비가 얇고 맛있음",ticket:""},
+  {name:"삼미칼국수",loc:"삼환",kind:"한식",food:"칼국수",star:"★★★☆",note:"",ticket:"식권 안됨"},
+  {name:"삼산회관",loc:"유스페이스 지하",kind:"한식",food:"김치찌개/돼지김치구이",star:"★★★",note:"계란말이 추가",ticket:""},
+  {name:"상아김밥",loc:"",kind:"분식",food:"김밥, 떡볶이, 라면",star:"★★★",note:"",ticket:""},
+  {name:"서브웨이",loc:"",kind:"샌드위치",food:"",star:"★★★",note:"",ticket:""},
+  {name:"서호돈까스",loc:"",kind:"일식",food:"돈까스",star:"★★★☆",note:"돈까스 두툼",ticket:""},
+  {name:"소바니우동",loc:"유스페이스 지하",kind:"일식",food:"우동/냉우동/텐동",star:"★★★",note:"냉우동, 카레가 맛있음",ticket:""},
+  {name:"소해",loc:"유스페이스",kind:"일식",food:"우나기동",star:"",note:"",ticket:""},
+  {name:"소호면가",loc:"우림",kind:"한식",food:"칼국수, 수제비, 덮밥",star:"",note:"",ticket:"식권 안됨"},
+  {name:"수작",loc:"",kind:"한식",food:"소고기 샤브샤브",star:"",note:"",ticket:""},
+  {name:"스마일 식당",loc:"H 스퀘어",kind:"한식",food:"한식부페",star:"★★★",note:"첫 방문시 간이 좀 짰지만 가격이 7500원",ticket:""},
+  {name:"스시가오",loc:"우림",kind:"퓨전",food:"퓨전",star:"",note:"",ticket:""},
+  {name:"시올돈",loc:"유스페이스",kind:"일식",food:"부드러운 돈가스",star:"★★★☆",note:"돈까스 두툼하고 부드러움",ticket:"식권 안됨"},
+  {name:"아세야마",loc:"우림",kind:"일식",food:"돈까스",star:"",note:"",ticket:""},
+  {name:"양우양꼬치",loc:"",kind:"한식",food:"한식부페",star:"★★☆",note:"평범한 한식부페 / 컵라면이 있음",ticket:""},
+  {name:"오봉집",loc:"유스페이스2 b동",kind:"한식",food:"제육, 낙지제육",star:"★★★☆",note:"직화(제육/낙지 등), 보쌈정식, 막국수 - 반찬이 많이 나오고 깔끔",ticket:""},
+  {name:"오투닭갈비",loc:"",kind:"한식",food:"닭갈비",star:"★★★☆",note:"",ticket:""},
+  {name:"오한수 우육면가",loc:"",kind:"중식",food:"우육면, 만두",star:"★★★☆",note:"대기가 살짝 있으나 맛있음",ticket:""},
+  {name:"올레샐러드",loc:"유스페이스",kind:"샐러드",food:"포케, 샐러드",star:"★★★☆",note:"",ticket:""},
+  {name:"우나기강",loc:"",kind:"일식",food:"장어덮밥",star:"★★★★",note:"장어덮밥, 가격이 좀 있음",ticket:"식권 안됨"},
+  {name:"우림닭갈비",loc:"우림",kind:"한식",food:"닭갈비",star:"",note:"",ticket:""},
+  {name:"울프스덴",loc:"",kind:"양식",food:"파스타, 피자, 스테이크",star:"★★★☆",note:"파스타는 1988보다 맛있음",ticket:""},
+  {name:"윤가네용대리황태국",loc:"",kind:"한식",food:"황태해장국, 미역국",star:"★★★☆",note:"진한 황태국",ticket:""},
+  {name:"율",loc:"",kind:"일식",food:"일본식 덮밥",star:"★★★",note:"",ticket:""},
+  {name:"율리아테이블",loc:"",kind:"양식",food:"굴라쉬",star:"★★★☆",note:"살짝 비싸지만 맛있음",ticket:""},
+  {name:"일상화식",loc:"",kind:"일식",food:"덮밥",star:"★★★☆",note:"평범함 / 함박이 맛있다고 하나 안 먹어봄",ticket:""},
+  {name:"자연횟집",loc:"",kind:"일식",food:"초밥",star:"★★☆",note:"초밥 생선종류가 하나만 나옴 / 회덮밥 맛있다고 함",ticket:""},
+  {name:"재크와콩나물",loc:"H 스퀘어",kind:"한식",food:"콩나물국밥",star:"★★★☆",note:"간단하게 먹기 좋은 콩나물 국밥",ticket:""},
+  {name:"제주은희네해장국 판교점",loc:"에이치스퀘어 지하",kind:"한식",food:"해장국",star:"★★★☆",note:"괜춘한 해장국 굉장히 빠르게 나옴",ticket:""},
+  {name:"집밥맛있다",loc:"유스페이스",kind:"한식",food:"한식백반",star:"★★★☆",note:"건강한 한식맛, 매일 메뉴가 달라짐",ticket:""},
+  {name:"차엔",loc:"",kind:"중식",food:"짬뽕",star:"★★★☆",note:"짬뽕이 맛있음 (기본, 차돌 둘다)",ticket:"식권 안됨"},
+  {name:"찬",loc:"",kind:"중식",food:"중식",star:"★★★☆",note:"많이 느끼하지 않은 중식",ticket:""},
+  {name:"천지연",loc:"차로 10분거리",kind:"한식",food:"구워주는 숯불고기",star:"★★★",note:"5명 이상 전화하면 데리러옴",ticket:"식권 안됨"},
+  {name:"청년다방",loc:"유스페이스1",kind:"분식",food:"떡볶이",star:"★★★",note:"즉석떡볶이",ticket:""},
+  {name:"춘업순대국",loc:"H 스퀘어",kind:"한식",food:"순대국",star:"★★★",note:"판교순대국 보다 진한 국물",ticket:""},
+  {name:"칭따오",loc:"우림",kind:"중식",food:"",star:"",note:"",ticket:""},
+  {name:"퀴즈노즈",loc:"유스페이스",kind:"샌드위치",food:"",star:"★★★☆",note:"",ticket:""},
+  {name:"키친박스",loc:"우림",kind:"분식",food:"분식집",star:"★★★",note:"평범함 분식집",ticket:""},
+  {name:"킨파",loc:"",kind:"일식",food:"고등어구이/연어덮밥",star:"★★★★",note:"웨이팅 있음 / 고등어구이가 근본",ticket:""},
+  {name:"타이팔칠",loc:"",kind:"아시안",food:"태국음식",star:"★★★☆",note:"똠얌쌀국수, 텃만꿍(새우튀김) 맛있음 / 날마다 맛이 약간씩 다름",ticket:"식권 안됨"},
+  {name:"타코 익스체인지",loc:"삼환",kind:"멕시칸",food:"타코",star:"★★★☆",note:"베어스 타코보다 맛있음",ticket:""},
+  {name:"테이블스푼컵스프",loc:"H 스퀘어",kind:"양식",food:"사라다빵 스프",star:"",note:"",ticket:""},
+  {name:"토호",loc:"디테라스",kind:"일식",food:"연어덮밥",star:"",note:"",ticket:"식권 안됨"},
+  {name:"판교순대국",loc:"NS별관 지하",kind:"한식",food:"순대국",star:"★★★☆",note:"맛있는 순대국밥",ticket:""},
+  {name:"팔복",loc:"",kind:"중식",food:"",star:"",note:"룸 형",ticket:"식권 안됨"},
+  {name:"포앤타이",loc:"우림",kind:"아시안",food:"쌀국수,팟타이,나시고랭",star:"",note:"",ticket:""},
+  {name:"풍천숯불재벌장어",loc:"",kind:"한식",food:"장어",star:"★★★☆",note:"장어정식",ticket:""},
+  {name:"피크닉",loc:"유스페이스",kind:"양식",food:"오므라이스, 오믈렛 샐러드",star:"★★★☆",note:"",ticket:""},
+  {name:"하동곰탕 다동북엇국",loc:"우림",kind:"한식",food:"곰탕, 육회 비빔밥, 북엇국, 육개장",star:"",note:"",ticket:""},
+  {name:"한소반쭈꾸미",loc:"차로 10분거리",kind:"한식",food:"쭈꾸미",star:"★★★☆",note:"차 있어야만 가능",ticket:"식권 안됨"},
+  {name:"해도락",loc:"",kind:"한식",food:"한식 해산물",star:"★★★★",note:"한정식 맛있는데 약간 비쌈",ticket:""},
+  {name:"헤비스테이크",loc:"",kind:"양식",food:"스테이크",star:"★★★",note:"가성비 스테이크",ticket:""},
+  {name:"홍호아",loc:"H 스퀘어",kind:"아시안",food:"반미, 쌀국수",star:"★★★☆",note:"반미가 맛있음",ticket:""},
+  {name:"후루룩칼국수",loc:"육교 옆",kind:"한식",food:"바지락 칼국수",star:"★★★",note:"평타 칼국수",ticket:""},
+  {name:"후토루",loc:"",kind:"분식",food:"후토마끼",star:"★★★☆",note:"",ticket:""},
+];
+
+let activeKind='전체', sortMode='name';
+
+function openDrawer(){document.getElementById('drawer').classList.add('open');document.getElementById('drawerBackdrop').classList.add('open');}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawerBackdrop').classList.remove('open');}
+function openMailModal(){document.getElementById('mailBackdrop').classList.add('open');}
+function closeMailModal(){document.getElementById('mailBackdrop').classList.remove('open');}
+
+let pwVal='';
+function openPwModal(){pwVal='';updateDots();document.getElementById('pwBackdrop').classList.add('open');}
+function closePwModal(){pwVal='';updateDots();document.getElementById('pwBackdrop').classList.remove('open');}
+function pwInput(n){
+  if(pwVal.length>=4)return;
+  pwVal+=n;updateDots();
+  if(pwVal.length===4){
+    setTimeout(()=>{
+      if(pwVal===PW){closePwModal();window.open(SHEET_URL,'_blank');}
+      else{
+        document.querySelectorAll('.pw-dot').forEach(d=>{d.classList.remove('filled');d.classList.add('error');});
+        setTimeout(()=>{document.querySelectorAll('.pw-dot').forEach(d=>d.classList.remove('error'));pwVal='';updateDots();},600);
+      }
+    },100);
+  }
+}
+function pwDelete(){if(pwVal.length>0){pwVal=pwVal.slice(0,-1);updateDots();}}
+function updateDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pwVal.length);}
+
+function buildFilters(){
+  const kinds=['전체',...new Set(DATA.map(d=>d.kind).filter(Boolean))];
+  document.getElementById('filterBar').innerHTML=kinds.map(k=>
+    '<button class="chip'+(k===activeKind?' active':'')+'" onclick="setKind(\''+k+'\')">'+k+'</button>'
+  ).join('');
+}
+function setKind(k){activeKind=k;buildFilters();render();}
+function setSort(m){sortMode=m;document.getElementById('btnName').classList.toggle('active',m==='name');document.getElementById('btnStar').classList.toggle('active',m==='star');render();}
+function starScore(s){if(!s||s==='데이터 없음')return -1;return(s.match(/★/g)||[]).length+((s.match(/☆/g)||[]).length?0.5:0);}
+function onSearch(v){document.getElementById('clearBtn').style.display=v?'block':'none';render();}
+function clearSearch(){document.getElementById('searchInput').value='';document.getElementById('clearBtn').style.display='none';render();}
+
+function render(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  const to=document.getElementById('ticketToggle').checked;
+  let items=DATA.filter(d=>{
+    if(activeKind!=='전체'&&d.kind!==activeKind)return false;
+    if(to&&d.ticket.includes('식권 안됨'))return false;
+    if(q&&!d.name.toLowerCase().includes(q)&&!d.food.toLowerCase().includes(q)&&!d.note.toLowerCase().includes(q))return false;
+    return true;
+  });
+  if(sortMode==='star')items.sort((a,b)=>starScore(b.star)-starScore(a.star)||a.name.localeCompare(b.name,'ko'));
+  else items.sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+
+  document.getElementById('countLabel').textContent=items.length+'곳';
+  const list=document.getElementById('cardList');
+  if(!items.length){list.innerHTML='<div class="state-box"><div class="state-icon">🍽️</div><div class="state-text">검색 결과가 없어요</div></div>';return;}
+
+  list.innerHTML=items.map((d,i)=>{
+    const c=KC[d.kind]||'#a55eea';
+    const bg=KBG[d.kind]||'#f8f0ff';
+    const e=KE[d.kind]||'🍽️';
+    const nt=d.ticket.includes('식권 안됨');
+    const tb=nt?'<span class="badge-no">식권 안됨</span>':d.ticket===''?'<span class="badge-ok">식권 가능</span>':'';
+    const hasStar=d.star&&d.star!=='데이터 없음';
+    return '<div class="card fade-in" style="animation-delay:'+Math.min(i*0.02,0.3)+'s" onclick="openDetail('+DATA.indexOf(d)+')">'
+      +'<div class="card-emoji-wrap" style="background:'+bg+'">'+e+'</div>'
+      +'<span class="kind-pill" style="background:'+c+'">'+d.kind+'</span>'
+      +'<div class="card-name">'+d.name+'</div>'
+      +(d.food?'<div class="card-food">'+d.food+'</div>':'<div class="card-food" style="color:transparent">-</div>')
+      +'<div class="card-bottom">'
+      +'<span class="card-star'+(hasStar?'':' empty')+'">'+( hasStar?d.star:'별점 없음')+'</span>'
+      +tb
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function openDetail(idx){
+  const d=DATA[idx];
+  const c=KC[d.kind]||'#a55eea';
+  const bg=KBG[d.kind]||'#f8f0ff';
+  const e=KE[d.kind]||'🍽️';
+  const nt=d.ticket.includes('식권 안됨');
+  document.getElementById('detailName').textContent=d.name;
+  document.getElementById('detailContent').innerHTML=
+    '<div class="detail-emoji-banner" style="background:'+bg+'">'+e+'</div>'
+    +'<div class="detail-body">'
+    +'<div class="detail-kind-row">'
+    +'<span class="kind-pill" style="background:'+c+'">'+d.kind+'</span>'
+    +(d.star&&d.star!=='데이터 없음'?'<span class="detail-star-big">'+d.star+'</span>':'<span class="detail-star-none">별점 없음</span>')
+    +'</div>'
+    +'<div class="detail-cards">'
+    +(d.food?'<div class="detail-icard full"><div class="detail-ilabel">메뉴</div><div class="detail-ival">'+d.food+'</div></div>':'')
+    +(d.loc?'<div class="detail-icard"><div class="detail-ilabel">위치</div><div class="detail-ival">'+d.loc+'</div></div>':'')
+    +'<div class="detail-icard"><div class="detail-ilabel">식권</div><div class="detail-ival">'+(nt?'<span class="badge-no">식권 안됨</span>':d.ticket?d.ticket:'<span class="badge-ok">식권 가능</span>')+'</div></div>'
+    +'</div>'
+    +(d.note?'<div class="detail-note-box"><div class="detail-note-label">💬 메모</div><div class="detail-note-text">'+d.note+'</div></div>':'')
+    +'</div>';
+  document.getElementById('detailOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDetail();closePwModal();closeDrawer();closeMailModal();}});
+
+buildFilters();
+render();
+</script>
+</body>
+</html>
