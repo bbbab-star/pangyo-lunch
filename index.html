@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>판교 밥밥밥</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--white:#fff;--text:#1a1a2e;--text-sub:#4a4a6a;--text-muted:#9090b0;--card-bg:rgba(255,255,255,0.82);--accent:#6c5ce7;--accent2:#00c9a7}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(160deg,#edf6ff 0%,#f0fffa 35%,#fdfff0 70%,#f5f0ff 100%);background-attachment:fixed;color:var(--text);min-height:100vh}
+.app{max-width:800px;margin:0 auto;min-height:100vh;position:relative}
+.header{padding:20px 24px 16px;position:sticky;top:0;z-index:100;background:rgba(238,248,255,0.84);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.header-title{font-size:32px;font-weight:900;letter-spacing:-1px;color:var(--text);font-style:italic;line-height:1}
+.menu-btn{width:42px;height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:none;border-radius:14px;background:var(--white);cursor:pointer;flex-shrink:0;box-shadow:0 4px 14px rgba(108,92,231,0.12)}
+.menu-btn span{display:block;width:16px;height:2px;background:var(--accent);border-radius:2px}
+.search-wrap{display:flex;align-items:center;background:var(--white);border-radius:16px;padding:0 16px;height:50px;gap:10px;box-shadow:0 4px 20px rgba(108,92,231,0.09)}
+.search-wrap input{border:none;background:transparent;font-size:15px;font-family:inherit;color:var(--text);outline:none;flex:1}
+.search-wrap input::placeholder{color:var(--text-muted)}
+.search-icon{color:var(--text-muted);font-size:17px;flex-shrink:0}
+.search-clear{background:none;border:none;color:var(--text-muted);font-size:17px;cursor:pointer;display:none;padding:2px}
+.filter-bar{display:flex;gap:8px;padding:12px 24px 4px;overflow-x:auto;scrollbar-width:none}
+.filter-bar::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:8px 18px;border-radius:24px;font-size:13px;font-weight:600;font-family:inherit;border:none;cursor:pointer;background:var(--white);color:var(--text-sub);white-space:nowrap;transition:all 0.18s;box-shadow:0 2px 10px rgba(108,92,231,0.08)}
+.chip:active{transform:scale(0.95)}
+.chip.active{background:var(--accent);color:white;box-shadow:0 4px 14px rgba(108,92,231,0.28)}
+.toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 24px 4px}
+.count-label{font-size:13px;color:var(--text-muted);font-weight:500}
+.toolbar-right{display:flex;align-items:center;gap:10px}
+.ticket-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.ticket-toggle input{display:none}
+.toggle-track{width:34px;height:19px;background:rgba(108,92,231,0.16);border-radius:19px;position:relative;transition:background 0.2s}
+.toggle-track::after{content:'';position:absolute;width:15px;height:15px;background:white;border-radius:50%;top:2px;left:2px;transition:transform 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.15)}
+.ticket-toggle input:checked+.toggle-track{background:var(--accent)}
+.ticket-toggle input:checked+.toggle-track::after{transform:translateX(15px)}
+.toggle-label{font-size:12px;color:var(--text-sub);font-weight:600}
+.sort-btns{display:flex;background:var(--white);border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(108,92,231,0.08)}
+.sort-btn{padding:6px 12px;font-size:12px;font-family:inherit;font-weight:600;border:none;background:transparent;color:var(--text-muted);cursor:pointer}
+.sort-btn.active{background:var(--accent);color:white}
+.card-list{padding:8px 24px 40px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(min-width:560px){.card-list{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:720px){.card-list{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--card-bg);border-radius:20px;padding:14px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 4px 18px rgba(108,92,231,0.07);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.7);position:relative}
+.card:active{transform:scale(0.97)}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(108,92,231,0.13)}
+.card-emoji-area{position:relative;width:100%;height:80px;margin-bottom:10px}
+.card-emoji-wrap{width:100%;height:100%;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:36px}
+.kind-pill{position:absolute;top:7px;right:7px;font-size:9px;padding:3px 8px;border-radius:8px;font-weight:700;color:white;z-index:1;display:inline-block}
+.card-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;letter-spacing:-0.3px;line-height:1.3}
+.card-loc{font-size:10px;color:var(--text-muted);margin-bottom:8px;line-height:1.4;min-height:14px}
+.card-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px}
+.card-star{font-size:11px;color:#f5c518;font-weight:700}
+.card-star.empty{color:#c8c8d8;font-size:10px;font-weight:400}
+.badge-no{font-size:10px;padding:2px 8px;border-radius:6px;background:transparent;color:#cc2020;font-weight:600;border:1.5px solid #e05050}
+.badge-ok{font-size:10px;padding:2px 8px;border-radius:6px;background:transparent;color:#008038;font-weight:600;border:1.5px solid #30b060}
+.state-box{text-align:center;padding:70px 20px;color:var(--text-muted);grid-column:1/-1}
+.state-icon{font-size:40px;margin-bottom:14px}
+.state-text{font-size:14px;line-height:1.7}
+.detail-overlay{position:fixed;inset:0;background:linear-gradient(160deg,#f4faff 0%,#f6fffb 30%,#fefff8 65%,#faf6ff 100%);z-index:200;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);overflow-y:auto}
+.detail-overlay.open{transform:translateY(0)}
+.detail-inner{max-width:600px;margin:0 auto}
+.detail-drag{width:40px;height:4px;background:rgba(108,92,231,0.15);border-radius:4px;margin:14px auto 0}
+.detail-header{padding:14px 24px 0;display:flex;align-items:center;gap:12px}
+.back-btn{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:none;border-radius:14px;background:white;cursor:pointer;font-size:17px;color:var(--accent);box-shadow:0 2px 10px rgba(108,92,231,0.12);flex-shrink:0}
+.detail-name{font-size:20px;font-weight:900;letter-spacing:-0.5px}
+.detail-banner-wrap{position:relative;margin:20px 24px 0}
+.detail-emoji-banner{height:180px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:80px;box-shadow:0 8px 28px rgba(108,92,231,0.12)}
+.detail-banner-pill{position:absolute;top:12px;right:12px;font-size:11px;padding:4px 10px;border-radius:9px;font-weight:700;color:white;z-index:1}
+.detail-body{padding:20px 24px}
+.detail-kind-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.detail-star-big{font-size:20px;color:#f5c518;font-weight:700}
+.detail-star-none{font-size:13px;color:var(--text-muted)}
+.detail-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.detail-icard{background:white;border-radius:16px;padding:14px;box-shadow:0 2px 12px rgba(108,92,231,0.07)}
+.detail-icard.full{grid-column:1/-1}
+.detail-ilabel{font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:5px}
+.detail-ival{font-size:13px;color:var(--text);font-weight:600;line-height:1.4}
+.detail-note-box{background:white;border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(108,92,231,0.07)}
+.detail-note-label{font-size:10px;color:var(--text-muted);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px}
+.detail-note-text{font-size:13px;color:var(--text-sub);line-height:1.7}
+.drawer-backdrop{position:fixed;inset:0;background:rgba(20,10,50,0.26);z-index:300;opacity:0;pointer-events:none;transition:opacity 0.25s;backdrop-filter:blur(4px)}
+.drawer-backdrop.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:260px;background:linear-gradient(180deg,#edf7ff 0%,#f0fff9 100%);z-index:301;transform:translateX(100%);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column}
+.drawer.open{transform:translateX(0)}
+.drawer-header{padding:56px 20px 20px;border-bottom:1px solid rgba(108,92,231,0.07);position:relative}
+.drawer-close{position:absolute;top:16px;right:16px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:none;border-radius:10px;background:white;cursor:pointer;font-size:14px;color:var(--accent);box-shadow:0 2px 8px rgba(108,92,231,0.1)}
+.drawer-body{flex:1;padding:8px 0;overflow-y:auto}
+.drawer-item{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer;border-bottom:1px solid rgba(108,92,231,0.06);transition:background 0.1s}
+.drawer-item:last-child{border-bottom:none}
+.drawer-item:active{background:rgba(108,92,231,0.04)}
+.drawer-item-icon{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+.drawer-item-label{font-size:15px;font-weight:700;color:var(--text)}
+.modal-backdrop{position:fixed;inset:0;background:rgba(20,10,50,0.38);z-index:400;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.modal-backdrop.open{display:flex}
+.random-modal{background:white;border-radius:32px;padding:22px 22px 18px;width:100%;max-width:310px;height:480px;display:flex;flex-direction:column;align-items:center;box-shadow:0 24px 70px rgba(108,92,231,0.22);overflow:hidden}
+.random-label{font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;flex-shrink:0}
+.qmark-wrap{width:148px;height:148px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#f0f0f4;border-radius:28px}
+.qmark-text{font-size:80px;color:#b0b0c8;font-weight:900;font-style:italic;line-height:1;user-select:none}
+.ingr-stage{width:148px;height:148px;position:relative;flex-shrink:0;display:none;overflow:hidden;border-radius:14px}
+.ingr-item{position:absolute;font-size:22px;opacity:0;line-height:1}
+.ingr-item.snow{animation:snowFall linear forwards}
+.ingr-burst{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:62px;opacity:0}
+.ingr-burst.pop{animation:burstPop 0.4s cubic-bezier(0.34,1.4,0.64,1) forwards}
+@keyframes snowFall{0%{opacity:0;transform:translateY(-10px) rotate(0deg) scale(0.7)}12%{opacity:1}88%{opacity:0.85}100%{opacity:0;transform:translateY(152px) rotate(340deg) scale(0.9)}}
+@keyframes burstPop{0%{opacity:0;transform:scale(0.2) rotate(-12deg)}55%{opacity:1;transform:scale(1.2) rotate(5deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+.random-result{width:100%;flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;opacity:0;transform:translateY(10px);transition:opacity 0.38s ease,transform 0.38s ease}
+.random-result.show{opacity:1;transform:translateY(0);display:flex}
+.random-emoji-wrap{width:80px;height:80px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:10px}
+.random-name{font-size:19px;font-weight:900;color:var(--text);text-align:center;letter-spacing:-0.5px;margin-bottom:5px}
+.random-kind{margin-bottom:4px}
+.random-food{font-size:11px;color:var(--text-sub);text-align:center;margin-bottom:4px;line-height:1.5;max-width:240px}
+.random-star{font-size:14px;color:#f5c518;margin-bottom:4px;font-weight:700}
+.random-ticket{font-size:11px;margin-bottom:0}
+.random-spacer{flex:1;min-height:0}
+.random-btns{width:100%;flex-shrink:0;display:flex;flex-direction:column;gap:7px;padding-top:12px}
+.random-spin-btn{width:100%;padding:13px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:15px;font-family:inherit;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(108,92,231,0.28);transition:all 0.15s}
+.random-spin-btn:disabled{opacity:0.5;cursor:not-allowed}
+.random-detail-btn{width:100%;padding:10px;background:transparent;color:var(--accent);border:2px solid rgba(108,92,231,0.22);border-radius:14px;font-size:13px;font-family:inherit;font-weight:700;cursor:pointer}
+.random-close-btn{width:100%;padding:6px;background:transparent;border:none;font-size:12px;font-family:inherit;font-weight:600;color:var(--text-muted);cursor:pointer}
+.pw-modal{background:white;border-radius:28px;padding:30px 24px;width:100%;max-width:300px;display:flex;flex-direction:column;gap:18px;box-shadow:0 20px 60px rgba(108,92,231,0.2)}
+.pw-title{font-size:18px;font-weight:900;text-align:center;color:var(--text)}
+.pw-sub{font-size:12px;color:var(--text-muted);text-align:center;margin-top:-10px}
+.pw-dots{display:flex;justify-content:center;gap:14px;margin:4px 0}
+.pw-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(108,92,231,0.2);background:transparent;transition:all 0.15s}
+.pw-dot.filled{background:var(--accent);border-color:var(--accent)}
+.pw-dot.error{background:#e53935;border-color:#e53935;animation:shake 0.35s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.pw-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pw-key{height:56px;border-radius:16px;border:none;background:#f4f0ff;font-size:20px;font-weight:700;font-family:inherit;cursor:pointer;color:var(--text);transition:all 0.12s}
+.pw-key:active{transform:scale(0.94);background:var(--accent);color:white}
+.pw-key.del{font-size:15px;font-weight:600;color:var(--text-sub)}
+.pw-key.cancel{font-size:12px;font-weight:600;color:var(--text-muted);background:transparent}
+.mail-modal{background:white;border-radius:28px;padding:28px 22px;width:100%;max-width:300px;display:flex;flex-direction:column;gap:13px;box-shadow:0 20px 60px rgba(108,92,231,0.2)}
+.mail-title{font-size:18px;font-weight:900;text-align:center;color:var(--text)}
+.mail-desc{font-size:12px;color:var(--text-muted);text-align:center;line-height:1.6}
+.mail-form{background:#f4f8ff;border-radius:14px;padding:14px;font-size:12px;line-height:2;color:var(--text-sub)}
+.mail-form strong{color:var(--text);font-weight:700;display:block;margin-bottom:2px;font-size:11px}
+.mail-open-btn{display:block;width:100%;padding:13px;background:var(--accent);color:white;border:none;border-radius:16px;font-size:14px;font-family:inherit;font-weight:700;text-align:center;text-decoration:none;cursor:pointer}
+.mail-cancel-btn{width:100%;padding:9px;background:transparent;border:none;font-size:13px;font-family:inherit;font-weight:600;color:var(--text-muted);cursor:pointer}
+.naver-map-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:var(--accent);color:white;border-radius:16px;font-size:14px;font-weight:700;text-decoration:none;margin-top:40px;transition:opacity 0.15s}
+.naver-map-btn:active{opacity:0.8}
+.fade-in{animation:fadeIn 0.2s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="header-title">Hi BaB</div>
+      <button class="menu-btn" onclick="openDrawer()"><span></span><span></span><span></span></button>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="가게명, 음식, 위치 검색..." oninput="onSearch(this.value)">
+      <button class="search-clear" id="clearBtn" onclick="clearSearch()">✕</button>
+    </div>
+  </div>
+  <div class="filter-bar" id="filterBar"></div>
+  <div class="toolbar">
+    <span class="count-label" id="countLabel"></span>
+    <div class="toolbar-right">
+      <label class="ticket-toggle">
+        <input type="checkbox" id="ticketToggle" onchange="render()">
+        <span class="toggle-track"></span>
+        <span class="toggle-label">식권 가능만</span>
+      </label>
+      <div class="sort-btns">
+        <button class="sort-btn active" id="btnName" onclick="setSort('name')">가나다</button>
+        <button class="sort-btn" id="btnStar" onclick="setSort('star')">별점순</button>
+      </div>
+    </div>
+  </div>
+  <div class="card-list" id="cardList"></div>
+  <div class="detail-overlay" id="detailOverlay">
+    <div class="detail-inner">
+      <div class="detail-drag"></div>
+      <div class="detail-header">
+        <button class="back-btn" onclick="closeDetail()">←</button>
+        <span class="detail-name" id="detailName"></span>
+      </div>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+  <div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header"><button class="drawer-close" onclick="closeDrawer()">✕</button></div>
+    <div class="drawer-body">
+      <div class="drawer-item" onclick="closeDrawer();openRandomModal()"><div class="drawer-item-icon">🎲</div><div class="drawer-item-label">오늘은 이거!</div></div>
+      <div class="drawer-item" onclick="closeDrawer();loadData()"><div class="drawer-item-icon">🔄</div><div class="drawer-item-label">새로고침</div></div>
+      <div class="drawer-item" onclick="closeDrawer();openMailModal()"><div class="drawer-item-icon">📮</div><div class="drawer-item-label">맛집 제보</div></div>
+      <div class="drawer-item" onclick="closeDrawer();openPwModal()"><div class="drawer-item-icon">🚪</div><div class="drawer-item-label">비밀의 방</div></div>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="randomBackdrop">
+    <div class="random-modal">
+      <div class="random-label">오늘의 점심은?</div>
+      <div class="random-spacer" id="randomSpacerTop"></div>
+      <div class="qmark-wrap" id="qmarkWrap"><span class="qmark-text">?</span></div>
+      <div class="ingr-stage" id="ingrStage"></div>
+      <div class="random-result" id="randomResult">
+        <div class="random-emoji-wrap" id="randomEmoji">🍽️</div>
+        <div class="random-kind" id="randomKind"></div>
+        <div class="random-name" id="randomName"></div>
+        <div class="random-food" id="randomFood"></div>
+        <div class="random-star" id="randomStar"></div>
+        <div class="random-ticket" id="randomTicket"></div>
+      </div>
+      <div class="random-spacer" id="randomSpacerBot"></div>
+      <div class="random-btns">
+        <button class="random-spin-btn" id="randomSpinBtn" onclick="spinRandom()">🎲 이거!</button>
+        <button class="random-detail-btn" id="randomDetailBtn" style="display:none" onclick="goToDetail()">자세히 보기 →</button>
+        <button class="random-close-btn" onclick="closeRandomModal()">닫기</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="pwBackdrop">
+    <div class="pw-modal">
+      <div class="pw-title">🔒 비밀의 방</div>
+      <div class="pw-sub">4자리 비밀번호를 입력하세요</div>
+      <div class="pw-dots">
+        <div class="pw-dot" id="d0"></div><div class="pw-dot" id="d1"></div>
+        <div class="pw-dot" id="d2"></div><div class="pw-dot" id="d3"></div>
+      </div>
+      <div class="pw-keypad">
+        <button class="pw-key" onclick="pwInput('1')">1</button><button class="pw-key" onclick="pwInput('2')">2</button><button class="pw-key" onclick="pwInput('3')">3</button>
+        <button class="pw-key" onclick="pwInput('4')">4</button><button class="pw-key" onclick="pwInput('5')">5</button><button class="pw-key" onclick="pwInput('6')">6</button>
+        <button class="pw-key" onclick="pwInput('7')">7</button><button class="pw-key" onclick="pwInput('8')">8</button><button class="pw-key" onclick="pwInput('9')">9</button>
+        <button class="pw-key cancel" onclick="closePwModal()">취소</button><button class="pw-key" onclick="pwInput('0')">0</button><button class="pw-key del" onclick="pwDelete()">⌫</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="mailBackdrop">
+    <div class="mail-modal">
+      <div class="mail-title">📮 맛집 제보</div>
+      <div class="mail-desc">새로운 맛집을 알고 계신가요?<br>메일로 제보해주세요!</div>
+      <div class="mail-form"><strong>제보 양식</strong>가게명 / 위치 / 종류<br>대표 메뉴 / 별점 / 식권 여부</div>
+      <a class="mail-open-btn" href="/cdn-cgi/l/email-protection#43212120222826032d223526316d202c2e" onclick="closeMailModal()">✉️ 메일 앱 열기</a>
+      <button class="mail-cancel-btn" onclick="closeMailModal()">닫기</button>
+    </div>
+  </div>
+</div>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+var SHEET_ID='1tehvmMSkE-SWYbW2Nn4hC3nrVh4nBFWICifGg3KIZvI';
+var CSV_URL='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/export?format=csv&gid=0';
+var SHEET_URL='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/edit';
+var PW='5603';
+var KC={"한식":"#e84040","일식":"#4070ee","중식":"#f08800","양식":"#8844dd","분식":"#d63080","아시안":"#00a8b8","멕시칸":"#3da830","패스트푸드":"#5c6f7e","샌드위치":"#7a5540","샐러드":"#6aaa20","퓨전":"#d42020"};
+var KBG={"한식":"#ffb8b8","일식":"#b8ccff","중식":"#ffd880","양식":"#ccaaff","분식":"#ffb8d8","아시안":"#88e4f4","멕시칸":"#a8ecaa","패스트푸드":"#c0ccd8","샌드위치":"#ddbba0","샐러드":"#aadf88","퓨전":"#ffb8b8"};
+var KBG2={"한식":"#fff0f0","일식":"#edf2ff","중식":"#fff8ec","양식":"#f4eeff","분식":"#fff0f8","아시안":"#eafaff","멕시칸":"#eefaee","패스트푸드":"#f0f2f4","샌드위치":"#faf4ee","샐러드":"#f0faee","퓨전":"#fff0f0"};
+var KE={"한식":"🍲","일식":"🍣","중식":"🥟","양식":"🍝","분식":"🍜","아시안":"🥢","멕시칸":"🌮","패스트푸드":"🍔","샌드위치":"🥪","샐러드":"🥗","퓨전":"🍽️"};
+var INGR=['🥬','🥕','🧅','🍅','🌶️','🧄','🥩','🍳','🫚','🥚','🌿','🫛','🥦','🍄','🧆','🥜','🫘','🍋','🧂','🫙'];
+var SAMPLE=[
+  {name:"판교국밥",loc:"판교역 2번 출구",kind:"한식",food:"소머리국밥, 순대국밥",star:"★★★★☆",note:"점심 특선 있음, 양 많음",ticket:""},
+  {name:"스시히로",loc:"테크원타워 B1",kind:"일식",food:"런치 스시세트, 사케동",star:"★★★★★",note:"예약 추천",ticket:"식권 안됨"},
+  {name:"황금관",loc:"SK플래닛 맞은편",kind:"중식",food:"짜장면, 탕수육, 짬뽕",star:"★★★☆☆",note:"탕수육 바삭함",ticket:""},
+  {name:"파스타집",loc:"판교역 1번 출구",kind:"양식",food:"까르보나라, 아라비아따",star:"★★★★☆",note:"런치 세트 12,000원",ticket:"식권 안됨"},
+  {name:"분식천국",loc:"현대백화점 근처",kind:"분식",food:"떡볶이, 순대, 튀김",star:"★★★☆☆",note:"가성비 최고",ticket:""},
+  {name:"쌀국수하우스",loc:"알파돔시티",kind:"아시안",food:"쌀국수, 분짜",star:"★★★★☆",note:"육수가 진함",ticket:""},
+  {name:"타코판교",loc:"카카오 오피스 앞",kind:"멕시칸",food:"타코, 부리토",star:"★★★☆☆",note:"매운맛 추천",ticket:"식권 안됨"},
+  {name:"버거플레이스",loc:"판교역 지하상가",kind:"패스트푸드",food:"스모키버거, 치즈버거",star:"★★★★☆",note:"패티 두툼함",ticket:""},
+  {name:"서브웨이",loc:"판교 테크노밸리",kind:"샌드위치",food:"이탈리안BMT, 터키",star:"★★★☆☆",note:"",ticket:""},
+  {name:"그린볼",loc:"네이버 그린팩토리",kind:"샐러드",food:"시저샐러드, 그레인볼",star:"★★★★☆",note:"다이어트 메뉴 다양",ticket:"식권 안됨"},
+  {name:"퓨전키친",loc:"롯데IT캐슬",kind:"퓨전",food:"한식파스타, 갈비리조또",star:"★★★★☆",note:"독특한 메뉴 조합",ticket:""}
+];
+var DATA=[], activeKind='전체', sortMode='name', currentRandomIdx=-1;
+
+function ticketLabel(d){
+  if(d.ticket&&d.ticket.includes('식권 안됨'))return '<span class="badge-no">식권 불가능</span>';
+  if(!d.ticket||d.ticket==='')return '<span class="badge-ok">식권 가능</span>';
+  return '<span style="font-size:10px;color:var(--text-muted);font-weight:500">'+d.ticket+'</span>';
+}
+function buildFilters(){
+  var emojiMap={"전체":"🍽️","한식":"🍲","일식":"🍣","중식":"🥟","양식":"🍝","분식":"🍜","아시안":"🥢","멕시칸":"🌮","패스트푸드":"🍔","샌드위치":"🥪","샐러드":"🥗","퓨전":"✨"};
+  var kinds=['전체'].concat([...new Set(DATA.map(function(d){return d.kind;}).filter(Boolean))]);
+  document.getElementById('filterBar').innerHTML=kinds.map(function(k){
+    var em=emojiMap[k]||'';
+    return '<button class="chip'+(k===activeKind?' active':'')+'" onclick="setKind(\''+k+'\')">'+(em?em+' ':'')+k+'</button>';
+  }).join('');
+}
+function setKind(k){activeKind=k;buildFilters();render();}
+function setSort(m){sortMode=m;document.getElementById('btnName').classList.toggle('active',m==='name');document.getElementById('btnStar').classList.toggle('active',m==='star');render();}
+function starScore(s){if(!s)return -1;return (s.match(/★/g)||[]).length+((s.match(/☆/g)||[]).length?0.5:0);}
+function onSearch(v){document.getElementById('clearBtn').style.display=v?'block':'none';render();}
+function clearSearch(){document.getElementById('searchInput').value='';document.getElementById('clearBtn').style.display='none';render();}
+function render(){
+  var q=document.getElementById('searchInput').value.trim().toLowerCase();
+  var to=document.getElementById('ticketToggle').checked;
+  var items=DATA.filter(function(d){
+    if(activeKind!=='전체'&&d.kind!==activeKind)return false;
+    if(to&&d.ticket&&d.ticket.includes('식권 안됨'))return false;
+    if(q&&!d.name.toLowerCase().includes(q)&&!d.food.toLowerCase().includes(q)&&!d.note.toLowerCase().includes(q)&&!d.loc.toLowerCase().includes(q))return false;
+    return true;
+  });
+  if(sortMode==='star')items.sort(function(a,b){return starScore(b.star)-starScore(a.star)||a.name.localeCompare(b.name,'ko');});
+  else items.sort(function(a,b){return a.name.localeCompare(b.name,'ko');});
+  document.getElementById('countLabel').textContent=items.length+'곳';
+  var list=document.getElementById('cardList');
+  if(!items.length){list.innerHTML='<div class="state-box"><div class="state-icon">🍽️</div><div class="state-text">검색 결과가 없어요</div></div>';return;}
+  list.innerHTML=items.map(function(d,i){
+    var c=KC[d.kind]||'#8844dd', bg2=KBG2[d.kind]||'#f4eeff', e=KE[d.kind]||'🍽️';
+    var hasStar=d.star&&d.star.length>0, didx=DATA.indexOf(d);
+    return '<div class="card fade-in" style="animation-delay:'+Math.min(i*0.015,0.3)+'s" onclick="openDetail('+didx+')">'
+      +'<div class="card-emoji-area"><div class="card-emoji-wrap" style="background:'+bg2+'">'+e+'</div>'
+      +'<span class="kind-pill" style="background:'+c+'">'+d.kind+'</span></div>'
+      +'<div class="card-name">'+d.name+'</div>'
+      +'<div class="card-loc">'+(d.loc?'📍 '+d.loc:'')+'</div>'
+      +'<div class="card-bottom"><span class="card-star'+(hasStar?'':' empty')+'">'+(hasStar?d.star:'정보없음')+'</span>'+ticketLabel(d)+'</div>'
+      +'</div>';
+  }).join('');
+}
+function openDetail(idx){
+  var d=DATA[idx]; if(!d)return;
+  var c=KC[d.kind]||'#8844dd', bg=KBG[d.kind]||'#ccaaff', e=KE[d.kind]||'🍽️';
+  document.getElementById('detailName').textContent=d.name;
+  document.getElementById('detailContent').innerHTML=
+    '<div class="detail-banner-wrap"><div class="detail-emoji-banner" style="background:'+bg+'">'+e+'</div>'
+    +'<span class="detail-banner-pill" style="background:'+c+'">'+d.kind+'</span></div>'
+    +'<div class="detail-body"><div class="detail-kind-row">'+(d.star&&d.star.length>0?'<span class="detail-star-big">'+d.star+'</span>':'<span class="detail-star-none">별점 없음</span>')+'</div>'
+    +'<div class="detail-cards">'
+    +(d.food?'<div class="detail-icard full"><div class="detail-ilabel">메뉴</div><div class="detail-ival">'+d.food+'</div></div>':'')
+    +(d.loc?'<div class="detail-icard"><div class="detail-ilabel">위치</div><div class="detail-ival">'+d.loc+'</div></div>':'')
+    +'<div class="detail-icard"><div class="detail-ilabel">식권</div><div class="detail-ival">'+ticketLabel(d)+'</div></div></div>'
+    +(d.note?'<div class="detail-note-box"><div class="detail-note-label">💬 메모</div><div class="detail-note-text">'+d.note+'</div></div>':'')
+    +'<a class="naver-map-btn" href="https://map.naver.com/p/search/'+encodeURIComponent('판교 '+d.name)+'" target="_blank">네이버 지도에서 보기</a>'
+    +'</div>';
+  document.getElementById('detailOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');document.body.style.overflow='';}
+function openDrawer(){document.getElementById('drawer').classList.add('open');document.getElementById('drawerBackdrop').classList.add('open');}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawerBackdrop').classList.remove('open');}
+function openMailModal(){document.getElementById('mailBackdrop').classList.add('open');}
+function closeMailModal(){document.getElementById('mailBackdrop').classList.remove('open');}
+function openRandomModal(){
+  document.getElementById('randomBackdrop').classList.add('open');
+  document.getElementById('qmarkWrap').style.display='flex';
+  document.getElementById('ingrStage').style.display='none';
+  document.getElementById('ingrStage').innerHTML='';
+  document.getElementById('randomResult').classList.remove('show');
+  document.getElementById('randomResult').style.display='none';
+  document.getElementById('randomSpacerTop').style.flex='1';
+  document.getElementById('randomSpacerBot').style.flex='1';
+  document.getElementById('randomDetailBtn').style.display='none';
+  var btn=document.getElementById('randomSpinBtn');
+  btn.disabled=false; btn.textContent='🎲 이거!';
+}
+function closeRandomModal(){document.getElementById('randomBackdrop').classList.remove('open');}
+function spinRandom(){
+  var btn=document.getElementById('randomSpinBtn');
+  if(btn.disabled||!DATA.length)return;
+  btn.disabled=true; btn.textContent='두근두근...';
+  var qwrap=document.getElementById('qmarkWrap'), stage=document.getElementById('ingrStage'), result=document.getElementById('randomResult');
+  result.classList.remove('show'); result.style.display='none';
+  document.getElementById('randomDetailBtn').style.display='none';
+  var idx=Math.floor(Math.random()*DATA.length); currentRandomIdx=idx;
+  var d=DATA[idx], c=KC[d.kind]||'#8844dd', bg=KBG[d.kind]||'#ccaaff', e=KE[d.kind]||'🍽️';
+  qwrap.style.display='none'; stage.style.display='block'; stage.innerHTML='';
+  var pool=INGR.slice().sort(function(){return Math.random()-0.5;});
+  for(var i=0;i<16;i++){(function(i){setTimeout(function(){
+    var el=document.createElement('div'); el.className='ingr-item';
+    el.textContent=pool[i%pool.length]; el.style.left=(Math.random()*114+4)+'px'; el.style.top='-10px';
+    el.style.animationDuration=(700+Math.random()*500)+'ms';
+    stage.appendChild(el); void el.offsetWidth; el.classList.add('snow');
+  },Math.random()*1000);})(i);}
+  setTimeout(function(){
+    stage.innerHTML='';
+    var burst=document.createElement('div'); burst.className='ingr-burst'; burst.textContent=e;
+    stage.appendChild(burst); void burst.offsetWidth; burst.classList.add('pop');
+    setTimeout(function(){
+      stage.style.display='none';
+      document.getElementById('randomSpacerTop').style.flex='0';
+      document.getElementById('randomSpacerBot').style.flex='0';
+      document.getElementById('randomEmoji').style.background=bg;
+      document.getElementById('randomEmoji').textContent=e;
+      document.getElementById('randomKind').innerHTML='<span style="font-size:10px;padding:2px 8px;border-radius:7px;font-weight:700;color:white;background:'+c+'">'+d.kind+'</span>';
+      document.getElementById('randomName').textContent=d.name;
+      document.getElementById('randomFood').textContent=d.food||'';
+      document.getElementById('randomStar').textContent=d.star||'별점 정보 없음';
+      document.getElementById('randomTicket').innerHTML=ticketLabel(d);
+      result.style.display='flex'; void result.offsetWidth; result.classList.add('show');
+      document.getElementById('randomDetailBtn').style.display='block';
+      btn.disabled=false; btn.textContent='🎲 다시 뽑기!';
+    },450);
+  },1650);
+}
+function goToDetail(){closeRandomModal();openDetail(currentRandomIdx);}
+var pwVal='';
+function openPwModal(){pwVal='';updateDots();document.getElementById('pwBackdrop').classList.add('open');}
+function closePwModal(){pwVal='';updateDots();document.getElementById('pwBackdrop').classList.remove('open');}
+function pwInput(n){
+  if(pwVal.length>=4)return; pwVal+=n; updateDots();
+  if(pwVal.length===4){setTimeout(function(){
+    if(pwVal===PW){closePwModal();window.open(SHEET_URL,'_blank');}
+    else{
+      document.querySelectorAll('.pw-dot').forEach(function(d){d.classList.remove('filled');d.classList.add('error');});
+      setTimeout(function(){document.querySelectorAll('.pw-dot').forEach(function(d){d.classList.remove('error');});pwVal='';updateDots();},600);
+    }
+  },100);}
+}
+function pwDelete(){if(pwVal.length>0){pwVal=pwVal.slice(0,-1);updateDots();}}
+function updateDots(){for(var i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pwVal.length);}
+function splitCSVLine(line){
+  var result=[],cur='',inQ=false;
+  for(var i=0;i<line.length;i++){var ch=line[i];if(ch==='"'){inQ=!inQ;continue;}if(ch===','&&!inQ){result.push(cur);cur='';continue;}cur+=ch;}
+  result.push(cur);return result;
+}
+function parseCSV(csv){
+  var lines=csv.split(/\r?\n/),result=[];
+  for(var i=1;i<lines.length;i++){if(!lines[i].trim())continue;var cols=splitCSVLine(lines[i]);if(!cols[0]||!cols[0].trim())continue;
+    result.push({name:(cols[0]||'').trim(),loc:(cols[1]||'').trim(),kind:(cols[2]||'').trim(),food:(cols[3]||'').trim(),star:(cols[4]||'').trim(),note:(cols[5]||'').trim(),ticket:(cols[6]||'').trim()});}
+  return result;
+}
+function loadData(){
+  var list=document.getElementById('cardList');
+  list.innerHTML='<div class="state-box"><div class="state-icon" style="display:inline-block">🍱</div><div class="state-text" style="margin-top:12px">맛집 불러오는 중...</div></div>';
+  fetch(CSV_URL)
+    .then(function(r){if(!r.ok)throw 0;return r.text();})
+    .then(function(csv){var p=parseCSV(csv);DATA=p.length?p:SAMPLE;buildFilters();render();})
+    .catch(function(){DATA=SAMPLE;buildFilters();render();});
+}
+loadData();
+</script>
+</body>
+</html>
